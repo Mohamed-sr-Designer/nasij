@@ -1,6 +1,6 @@
 /* NASIJ — default content. Generated; the dashboard publishes overrides as content.json. */
 window.NZ_DEFAULTS = {
- "v": 1,
+ "v": 2,
  "settings": {
   "name_en": "NASIJ",
   "name_ar": "نسيج",
@@ -10,7 +10,7 @@ window.NZ_DEFAULTS = {
   "defaultMode": "light",
   "currency_en": "EGP",
   "currency_ar": "ج.م",
-  "whatsapp": "201228748098",
+  "whatsapp": "201154430545",
   "instagram": "nasij_brand",
   "tiktok": "",
   "email": "hello@naseej.eg",
@@ -280,34 +280,40 @@ window.NZ_DEFAULTS = {
     "on": true,
     "en": "InstaPay",
     "ar": "إنستاباي",
-    "handle": "nasij@instapay"
+    "handle": "010000000"
    },
    "vodafone": {
     "on": true,
     "en": "Vodafone Cash",
     "ar": "فودافون كاش",
-    "number": "01228748098"
+    "number": "010000000"
    }
   },
   "publish": {
    "owner": "Mohamed-sr-Designer",
-   "repo": "naseej",
+   "repo": "nasij",
    "branch": "main"
   }
  },
  "theme": {
-  "accent": "#D4FF3F",
+  "accent": "#C4B5FD",
   "night": "#08080B",
   "paper": "#F3F0EA",
   "radius": 2,
-  "grain": true
+  "grain": true,
+  "preset": "aurora",
+  "gradient": true,
+  "angle": 105,
+  "g1": "#C4B5FD",
+  "g2": "#F9A8D4",
+  "g3": "#FDD7AA"
  },
  "nav": {
   "header": [
    {
-    "en": "Drop 01",
-    "ar": "دروب ٠١",
-    "to": "#/drops"
+    "en": "Home",
+    "ar": "الرئيسية",
+    "to": "#/"
    },
    {
     "en": "Zodiac",
@@ -323,6 +329,11 @@ window.NZ_DEFAULTS = {
     "en": "Custom",
     "ar": "تخصيص",
     "to": "#/custom"
+   },
+   {
+    "en": "Drop 01",
+    "ar": "دروب ٠١",
+    "to": "#/drops"
    }
   ],
   "footer": [
@@ -367,10 +378,10 @@ window.NZ_DEFAULTS = {
     "image": "images/zodiac/zodiac-banner.jpg",
     "kicker_en": "Drop 01 · The Zodiac Collection",
     "kicker_ar": "دروب ٠١ · كولكشن الأبراج",
-    "title_en": "Wear your sky.",
-    "title_ar": "البس سماك.",
-    "text_en": "Twelve signs, five colourways, one heavyweight hoodie. Reserve yours before it drops.",
-    "text_ar": "١٢ برج، ٥ ألوان، وهودي واحد تقيل. احجز برجك قبل ما ينزل.",
+    "title_en": "Your sign. On your back.",
+    "title_ar": "برجك. على ضهرك.",
+    "text_en": "Twelve zodiac hoodies in five colourways — heavyweight Egyptian cotton with your sign printed big on the back. Reserve yours before the drop.",
+    "text_ar": "١٢ هودي للأبراج بـ٥ ألوان — قطن مصري تقيل وبرجك مطبوع كبير على الضهر. احجز برجك قبل الدروب.",
     "cta_en": "Reserve your sign",
     "cta_ar": "احجز برجك",
     "to": "#/drops",
@@ -384,8 +395,8 @@ window.NZ_DEFAULTS = {
     "on": true,
     "kicker_en": "Find your sign",
     "kicker_ar": "اعرف برجك",
-    "title_en": "Spin the sky.",
-    "title_ar": "لفّ السما.",
+    "title_en": "Find your sign.",
+    "title_ar": "اعرف برجك.",
     "text_en": "Turn the dial or enter your birthday — we’ll pull up your hoodie in every colourway.",
     "text_ar": "لفّ الدائرة أو اكتب تاريخ ميلادك — وهنطلعلك الهودي بتاعك بكل الألوان."
    },
@@ -3963,7 +3974,77 @@ window.NZ_DEFAULTS = {
   "sizeGuide": {
    "text_en": "Everything is cut oversized and unisex. Take your usual size for the relaxed, dropped-shoulder look — or one size down for a closer fit. Not sure? Message us on WhatsApp with your height and weight.",
    "text_ar": "كل القطع قصّتها أوفرسايز ويونيسكس. خُد مقاسك المعتاد للوك الواسع بالأكتاف النازلة — أو مقاس أصغر لو عايزه أضيق. محتار؟ ابعتلنا طولك ووزنك على واتساب.",
-   "rows": []
+   "rows": [
+    {
+     "size": "S",
+     "chest": "60",
+     "length": "70",
+     "sleeve": "60"
+    },
+    {
+     "size": "M",
+     "chest": "62",
+     "length": "72",
+     "sleeve": "61"
+    },
+    {
+     "size": "L",
+     "chest": "64",
+     "length": "74",
+     "sleeve": "62"
+    },
+    {
+     "size": "XL",
+     "chest": "66",
+     "length": "76",
+     "sleeve": "63"
+    },
+    {
+     "size": "XXL",
+     "chest": "68",
+     "length": "78",
+     "sleeve": "64"
+    }
+   ],
+   "pants": [
+    {
+     "size": "S",
+     "waist": "34",
+     "length": "100",
+     "inseam": "74",
+     "hem": "26"
+    },
+    {
+     "size": "M",
+     "waist": "36",
+     "length": "102",
+     "inseam": "75",
+     "hem": "27"
+    },
+    {
+     "size": "L",
+     "waist": "38",
+     "length": "104",
+     "inseam": "76",
+     "hem": "28"
+    },
+    {
+     "size": "XL",
+     "waist": "40",
+     "length": "106",
+     "inseam": "77",
+     "hem": "29"
+    },
+    {
+     "size": "XXL",
+     "waist": "42",
+     "length": "108",
+     "inseam": "78",
+     "hem": "30"
+    }
+   ],
+   "note_en": "Measured flat, in centimetres. Allow ±1–2 cm.",
+   "note_ar": "القياسات والقطعة مفرودة، بالسنتيمتر. فرق ±١–٢ سم طبيعي."
   },
   "policies": [
    {

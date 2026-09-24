@@ -3,8 +3,8 @@
    A session ends after 30 idle minutes or when a new external source lands.
    Recorded: device, source (utm/referrer), landing, pages, product views,
    add-to-cart, checkout reached, purchase, searches, custom requests.
-   Demo: stored in this browser (nz_track). At launch, swap write() for a
-   call to your server — the rest stays the same.
+   Stored in this browser (nz_track); on WordPress each session is also
+   mirrored to /wp-json/nasij/v1/track so the dashboard sees every visitor.
    ========================================================================= */
 window.NZ_TRACK = (function () {
   'use strict';
@@ -21,7 +21,12 @@ window.NZ_TRACK = (function () {
     if (!document.referrer) return 'direct';
     try { const h = new URL(document.referrer).hostname; if (h === location.hostname) return null; return map(h); } catch (e) { return 'direct'; }
   }
-  const persist = () => { data.sessions = data.sessions.slice(-MAX); write(data); };
+  const persist = () => { data.sessions = data.sessions.slice(-MAX); write(data); sync(); };
+  /* WordPress: mirror the current session to the store database (debounced) */
+  const WP = window.NZ_WP; let syncT = 0;
+  function flush() { if (!WP || !s) return; try { fetch(WP.rest + 'nasij/v1/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ vid: data.vid, s: s }), keepalive: true, credentials: 'omit' }).catch(function () { }); } catch (e) { } }
+  function sync() { if (!WP) return; clearTimeout(syncT); syncT = setTimeout(flush, 1500); }
+  if (WP) addEventListener('pagehide', () => { clearTimeout(syncT); flush(); });
   let s = null;
   function session() {
     const now = Date.now(), last = data.sessions[data.sessions.length - 1];

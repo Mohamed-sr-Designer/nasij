@@ -4,6 +4,9 @@
    · catalog  : products / variants / collections / drop helpers
    · store    : cart, wishlist, orders, custom requests (localStorage)
    · i18n     : UI strings (AR/EN) with dashboard overrides
+   · backend  : static (GitHub Pages: content.json) or WordPress (window.NZ_WP,
+                injected by the NASIJ theme: content, orders, requests and
+                visits live in the WordPress database via /wp-json/nasij/v1)
    ========================================================================= */
 window.NZ = (function () {
   'use strict';
@@ -30,18 +33,43 @@ window.NZ = (function () {
     return out;
   }
 
+  /* ─────────────────────────── backend ─────────────────────────── */
+  const WP = window.NZ_WP || null;
+  const BASE = (WP && WP.base) || '';
+  const api = p => WP.rest + p;
+  const withQ = (u, k, v) => u + (u.indexOf('?') > -1 ? '&' : '?') + k + '=' + encodeURIComponent(v);
+  /* theme-relative asset path → absolute URL (only needed on WordPress, where pages are not served from the theme folder) */
+  const abs = u => (!BASE || typeof u !== 'string' || !/^(images|assets)\//.test(u)) ? u : BASE + u;
+  function absAll(o) {
+    if (typeof o === 'string') return abs(o);
+    if (Array.isArray(o)) return o.map(absAll);
+    if (o && typeof o === 'object') { const r = {}; Object.keys(o).forEach(k => { r[k] = absAll(o[k]); }); return r; }
+    return o;
+  }
+  /* fire-and-forget POST to the WordPress API (public endpoints: no nonce, so cached pages never break it) */
+  async function send(path, body) {
+    if (!WP) return null;
+    try {
+      const txt = JSON.stringify(body);
+      const r = await fetch(api(path), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: txt, keepalive: txt.length < 60000, credentials: 'omit' });
+      return r.ok ? await r.json() : null;
+    } catch (e) { return null; }
+  }
+
   /* ─────────────────────────── content ─────────────────────────── */
   const DEF = window.NZ_DEFAULTS;
   let C = clone(DEF);
   let published = null;
   const previewing = () => { try { return localStorage.getItem(LS.preview) === '1' && !!localStorage.getItem(LS.draft); } catch (e) { return false; } };
-  async function load() {
+  async function load(opts) {
     try {
-      const r = await fetch('content.json?ts=' + Date.now(), { cache: 'no-store' });
+      const url = WP ? api('nasij/v1/content') : 'content.json';
+      const r = await fetch(withQ(url, 'ts', Date.now()), { cache: 'no-store', credentials: WP ? 'omit' : 'same-origin' });
       if (r.ok) { const j = await r.json(); if (j && typeof j === 'object' && Object.keys(j).length) published = j; }
     } catch (e) { /* offline or file:// — defaults only */ }
     let eff = published ? merge(DEF, published) : clone(DEF);
-    if (previewing()) { const d = read(LS.draft, null); if (d) eff = merge(DEF, d); }
+    if (previewing()) { const d = read(LS.draft, null); if (d && (d.v || 1) === (DEF.v || 1)) eff = merge(DEF, d); }
+    if (opts && opts.abs && BASE) eff = absAll(eff);
     C = eff;
     return C;
   }
@@ -288,6 +316,7 @@ window.NZ = (function () {
         log: [{ s: T.onlyPre ? 'reserved' : 'pending', t: Date.now() }]
       };
       const all = orders.list(); all.unshift(o); orders.save(all);
+      send('nasij/v1/orders', o);
       write(LS.profile, { name: info.name, phone: info.phone, email: info.email || '', zone: info.zone, district: info.district, address: info.address });
       cart.clear();
       emit('order'); try { window.NZ_TRACK && NZ_TRACK.event('purchase', { id, total: o.totals.total }); } catch (e) { }
@@ -301,7 +330,7 @@ window.NZ = (function () {
   /* ─────────────────────────── custom requests ─────────────────────────── */
   const requests = {
     list: () => read(LS.requests, []),
-    add(r) { const all = requests.list(); all.unshift(r); if (!write(LS.requests, all)) { r.images = []; all[0] = r; write(LS.requests, all); } emit('requests'); return r; },
+    add(r) { send('nasij/v1/requests', r); const all = requests.list(); all.unshift(r); if (!write(LS.requests, all)) { r.images = []; all[0] = r; write(LS.requests, all); } emit('requests'); return r; },
     set(id, patch) { const all = requests.list(); const r = all.find(x => x.id === id); if (r) Object.assign(r, patch); write(LS.requests, all); },
     remove(id) { write(LS.requests, requests.list().filter(x => x.id !== id)); }
   };
@@ -310,7 +339,7 @@ window.NZ = (function () {
   const wa = text => 'https://wa.me/' + String(C.settings.whatsapp || '').replace(/\D/g, '') + (text ? '?text=' + encodeURIComponent(text) : '');
 
   return {
-    LS, read, write, clone, esc, $, $$, uid, hash, merge, load, content, previewing, use(o) { C = o; }, get C() { return C; }, get DEF() { return DEF; }, get published() { return published; },
+    LS, read, write, clone, esc, $, $$, uid, wp: WP, api: WP ? api : null, withQ, abs, absAll, send, hash, merge, load, content, previewing, use(o) { C = o; }, get C() { return C; }, get DEF() { return DEF; }, get published() { return published; },
     STR, t, L, LL, isAr, get lang() { return lang; }, setLang(l) { lang = l; write(LS.lang, l); emit('lang'); }, initLang() { if (!lang) lang = (C.settings && C.settings.defaultLang) || 'en'; },
     money, date, products, product, collections, collection, inCollection, variant, title, colourName, img, sign, signForDate,
     stockOf, soldOut, drop, dropTime, dropOpen, isPre, deposit, reservedCount, countdown,

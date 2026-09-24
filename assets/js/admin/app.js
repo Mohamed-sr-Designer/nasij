@@ -10,6 +10,7 @@
 window.NZA = (function () {
   'use strict';
   const N = window.NZ, S = window.NZS;
+  const WP = N.wp; /* set when the dashboard runs inside the NASIJ WordPress theme */
   const esc = N.esc, $ = N.$, $$ = N.$$;
   const LS = { lang: 'nz_adm_lang', users: 'nz_adm_users', sess: 'nz_adm_session', gh: 'nz_gh_token', range: 'nz_adm_range', draft: N.LS.draft, preview: N.LS.preview };
   const AR = () => (localStorage.getItem(LS.lang) || 'ar') === 'ar';
@@ -82,7 +83,9 @@ window.NZA = (function () {
   function loadDraft() {
     base = N.published ? N.merge(N.DEF, N.published) : clone(N.DEF);
     pubHash = H(base);
-    const d = N.read(LS.draft, null);
+    let d = N.read(LS.draft, null);
+    // a draft saved against an older content version would silently bring old copy back — drop it
+    if (d && (d.v || 1) !== (N.DEF.v || 1)) { localStorage.removeItem(LS.draft); d = null; }
     draft = d ? N.merge(N.DEF, d) : clone(base);
     N.use(draft);   // every NZ helper (products, collections, drop…) now reads the draft
   }
@@ -206,16 +209,16 @@ window.NZA = (function () {
     $('#root').innerHTML = `
       <header class="top">
         <button class="iconb top__menu" data-side style="color:#fff">${icon('menu')}</button>
-        <a class="top__brand" href="#home"><img src="images/logo-en-white.png" alt="NASIJ"><span>${A('لوحة التحكم', 'Admin')}</span></a>
+        <a class="top__brand" href="#home"><img src="${esc(N.abs('images/logo-en-white.png'))}" alt="NASIJ"><span>${A('لوحة التحكم', 'Admin')}</span></a>
         <div class="top__search">${icon('search')}<input id="gsearch" placeholder="${A('دوّر على طلب، عميل، منتج…  (/)', 'Search orders, customers, products…  (/)')}" autocomplete="off"><div class="top__res" id="gres"></div></div>
         <div class="top__act">
-          <a class="tbtn" href="index.html" target="_blank" rel="noopener">${icon('ext')}<span class="hide-s">${A('المتجر', 'View store')}</span></a>
+          <a class="tbtn" href="${esc(WP ? WP.home : 'index.html')}" target="_blank" rel="noopener">${icon('ext')}<span class="hide-s">${A('المتجر', 'View store')}</span></a>
           <button class="tbtn" data-alang>${icon('globe')}${AR() ? 'EN' : 'ع'}</button>
           <button class="tbtn" data-logout title="${esc(me.email)}"><span class="avatar">${esc((me.name || me.email)[0].toUpperCase())}</span></button>
         </div>
       </header>
       <div class="shell">
-        <nav class="side" id="side">${NAV().map(g => `${g.g ? `<div class="side__g">${g.g}</div>` : ''}${g.items.filter(([, , , perm]) => !perm || (perm === 'owner' ? me.role === 'owner' : can(perm))).map(([k, ic, l, , sub]) => `<a href="#${k}" data-nav="${k}"${sub ? ' style="padding-inline-start:36px;font-weight:500"' : ''}>${sub ? '' : icon(ic)}<span>${l}</span>${k === 'orders' && c.orders ? `<span class="cnt">${c.orders}</span>` : ''}${k === 'requests' && c.requests ? `<span class="cnt">${c.requests}</span>` : ''}</a>`).join('')}`).join('')}
+        <nav class="side" id="side">${NAV().map(g => `${g.g ? `<div class="side__g">${g.g}</div>` : ''}${g.items.filter(([k, , , perm]) => !(WP && k === 'staff') && (!perm || (perm === 'owner' ? me.role === 'owner' : can(perm)))).map(([k, ic, l, , sub]) => `<a href="#${k}" data-nav="${k}"${sub ? ' style="padding-inline-start:36px;font-weight:500"' : ''}>${sub ? '' : icon(ic)}<span>${l}</span>${k === 'orders' && c.orders ? `<span class="cnt">${c.orders}</span>` : ''}${k === 'requests' && c.requests ? `<span class="cnt">${c.requests}</span>` : ''}</a>`).join('')}`).join('')}
           <div class="side__foot"><span class="muted small">${esc(me.email)} · ${me.role === 'owner' ? A('المالك', 'Owner') : A('موظف', 'Staff')}</span></div>
         </nav>
         <main class="main"><div id="view"></div>
@@ -248,7 +251,7 @@ window.NZA = (function () {
   function login() {
     document.documentElement.lang = AR() ? 'ar' : 'en'; document.documentElement.dir = AR() ? 'rtl' : 'ltr';
     $('#root').innerHTML = `<div class="login"><form class="login__card" id="loginForm">
-      <div class="row row--sb"><img src="images/logo-en.png" alt="NASIJ"><button type="button" class="btn btn--sm btn--ghost" data-alang>${AR() ? 'English' : 'العربية'}</button></div>
+      <div class="row row--sb"><img src="${esc(N.abs('images/logo-en.png'))}" alt="NASIJ"><button type="button" class="btn btn--sm btn--ghost" data-alang>${AR() ? 'English' : 'العربية'}</button></div>
       <h1>${A('تسجيل الدخول للوحة التحكم', 'Sign in to the dashboard')}</h1>
       <label class="fld"><span>${A('الإيميل', 'Email')}</span><input class="inp" name="email" type="email" dir="ltr" autocomplete="username" required></label>
       <label class="fld"><span>${A('كلمة السر', 'Password')}</span><input class="inp" name="pw" type="password" dir="ltr" autocomplete="current-password" required></label>
@@ -281,7 +284,30 @@ window.NZA = (function () {
     return r.json();
   }
   const b64 = s => btoa(unescape(encodeURIComponent(s)));
+  /* WordPress: new images → Media Library, content → /wp-json/nasij/v1/content */
+  function dataToBlob(u) { const [h, b] = u.split(','), mime = (h.match(/data:([^;]+)/) || [])[1] || 'image/jpeg', bin = atob(b), arr = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i); return new Blob([arr], { type: mime }); }
+  async function publishWP(log) {
+    const uploads = [];
+    const walk = o => { if (!o || typeof o !== 'object') return; Object.keys(o).forEach(k => { const v = o[k]; if (typeof v === 'string' && v.indexOf('data:image') === 0) uploads.push({ o, k, v }); else if (typeof v === 'object') walk(v); }); };
+    walk(draft);
+    for (let i = 0; i < uploads.length; i++) {
+      const u = uploads[i], blob = dataToBlob(u.v), ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg').replace('svg+xml', 'svg');
+      log(A('رفع صورة ', 'Uploading image ') + (i + 1) + '/' + uploads.length);
+      const r = await fetch(N.api('wp/v2/media'), { method: 'POST', credentials: 'same-origin', headers: { 'X-WP-Nonce': WP.nonce, 'Content-Disposition': 'attachment; filename="nasij-' + N.hash(u.v) + '.' + ext + '"', 'Content-Type': blob.type }, body: blob });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.source_url) throw new Error(j.message || ('WordPress ' + r.status));
+      u.o[u.k] = j.source_url;
+    }
+    save();
+    log(A('نشر المحتوى…', 'Publishing content…'));
+    const r = await fetch(N.api('nasij/v1/content'), { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': WP.nonce }, body: JSON.stringify(draft) });
+    if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.message || ('WordPress ' + r.status)); }
+    pubHash = H(draft); base = clone(draft); N.use(draft);
+    localStorage.removeItem(LS.draft); paintPub();
+    return true;
+  }
   async function publish(log) {
+    if (WP) return publishWP(log);
     if (!token()) throw new Error(A('أضف توكن GitHub الأول.', 'Add a GitHub token first.'));
     const g = gh();
     // 1) turn uploaded images (data URLs) into real files
@@ -309,7 +335,44 @@ window.NZA = (function () {
     a.href = URL.createObjectURL(new Blob([JSON.stringify(draft)], { type: 'application/json' }));
     a.download = 'content.json'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
-  function preview() { N.write(LS.draft, draft); localStorage.setItem(LS.preview, '1'); window.open('index.html#/', '_blank'); }
+  const storeUrl = hash => (WP ? WP.home : 'index.html') + (hash || '#/');
+  function preview() { N.write(LS.draft, draft); localStorage.setItem(LS.preview, '1'); window.open(storeUrl('#/'), '_blank'); }
+
+  /* ─────────────── WordPress data (orders, requests, visits live in the site database) ─────────────── */
+  const wpc = { orders: [], requests: [], snap: {} };
+  async function wpGet(path) { const r = await fetch(N.withQ(N.api(path), 'ts', Date.now()), { headers: { 'X-WP-Nonce': WP.nonce }, credentials: 'same-origin', cache: 'no-store' }); if (!r.ok) throw new Error('WordPress ' + r.status); return r.json(); }
+  function wpSend(path, method, body) {
+    const h = { 'Content-Type': 'application/json', 'X-WP-Nonce': WP.nonce }; if (method === 'DELETE') h['X-HTTP-Method-Override'] = 'DELETE';
+    return fetch(N.api(path), { method: 'POST', headers: h, credentials: 'same-origin', body: body ? JSON.stringify(body) : undefined })
+      .then(r => { if (!r.ok) toast(A('مقدرتش أحفظ التغيير على الموقع', 'Could not save that change to the site') + ' (' + r.status + ')', true); return r.ok; })
+      .catch(() => { toast(A('مفيش اتصال بالموقع', 'No connection to the site'), true); return false; });
+  }
+  async function wpSync(bg) {
+    try {
+      const [os, rs, ss] = await Promise.all([wpGet('nasij/v1/orders'), wpGet('nasij/v1/requests'), wpGet('nasij/v1/track')]);
+      const was = wpc.orders.length + '/' + wpc.requests.length;
+      wpc.orders = Array.isArray(os) ? os : []; wpc.requests = Array.isArray(rs) ? rs : [];
+      wpc.snap = {}; wpc.orders.forEach(o => { wpc.snap[o.id] = JSON.stringify(o); });
+      N.remoteSessions = Array.isArray(ss) ? ss : [];
+      const busy = document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+      if (bg && me && was !== wpc.orders.length + '/' + wpc.requests.length && !busy && /^(home|orders|requests|customers|drop)$/.test(route.name)) { shell(); render(); }
+    } catch (e) { if (!bg) toast(A('مقدرتش أجيب الطلبات من ووردبريس', 'Could not load orders from WordPress'), true); }
+  }
+  function wpWire() {
+    N.orders.list = () => wpc.orders;
+    N.orders.save = list => {
+      const ids = new Set(list.map(o => o.id));
+      Object.keys(wpc.snap).forEach(id => { if (!ids.has(id)) { wpSend('nasij/v1/orders/' + encodeURIComponent(id), 'DELETE'); delete wpc.snap[id]; } });
+      list.forEach(o => { const js = JSON.stringify(o); if (wpc.snap[o.id] !== js) { wpSend('nasij/v1/orders/' + encodeURIComponent(o.id), 'POST', o); wpc.snap[o.id] = js; } });
+      wpc.orders = list;
+    };
+    N.requests.list = () => wpc.requests;
+    N.requests.set = (id, patch) => { const r = wpc.requests.find(x => x.id === id); if (!r) return; Object.assign(r, patch); wpSend('nasij/v1/requests/' + encodeURIComponent(id), 'POST', r); };
+    N.requests.remove = id => { wpc.requests = wpc.requests.filter(x => x.id !== id); wpSend('nasij/v1/requests/' + encodeURIComponent(id), 'DELETE'); };
+    /* theme-relative images in the dashboard (content keeps "images/…" paths) */
+    const fix = el => { if (el.tagName === 'IMG' && /^(images|assets)\//.test(el.getAttribute('src') || '')) el.src = N.abs(el.getAttribute('src')); };
+    new MutationObserver(ms => ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType !== 1) return; fix(n); n.querySelectorAll && n.querySelectorAll('img').forEach(fix); }))).observe(document.documentElement, { childList: true, subtree: true });
+  }
 
   /* ─────────────── events ─────────────── */
   function bind() {
@@ -343,6 +406,7 @@ window.NZA = (function () {
       if (b.dataset.href && !e.target.closest('input,button,a,label')) { location.hash = b.dataset.href; return; }
       if (b.hasAttribute('data-mclose') || (b.id === 'modal')) { closeModal(); return; }
       if (b.hasAttribute('data-alang')) { localStorage.setItem(LS.lang, AR() ? 'en' : 'ar'); if (me) { shell(); render(); } else login(); return; }
+      if (b.hasAttribute('data-logout') && WP) { confirmBox(A('تسجيل الخروج من ووردبريس؟', 'Sign out of WordPress?'), A('خروج', 'Sign out'), () => { location.href = WP.logout; }); return; }
       if (b.hasAttribute('data-logout')) { confirmBox(A('تسجيل الخروج؟', 'Sign out?'), A('خروج', 'Sign out'), () => { sessionStorage.removeItem(LS.sess); localStorage.removeItem(LS.sess); me = null; login(); }); return; }
       if (b.hasAttribute('data-side')) { $('#side').classList.toggle('on'); return; }
       if (b.hasAttribute('data-preview')) { preview(); return; }
@@ -382,16 +446,18 @@ window.NZA = (function () {
 
   /* ─────────────── boot ─────────────── */
   async function boot() {
+    if (WP) wpWire();
     await N.load();
     N.initLang();
     loadDraft();
-    me = session();
+    if (WP) { me = { email: WP.user.email, name: WP.user.name || WP.user.email, role: 'owner', perms: ['*'] }; await wpSync(); setInterval(() => wpSync(true), 60000); }
+    else me = session();
     bind();
     render();
   }
 
   return {
     A, AR, esc, $, $$, icon, money, dt, d8, toast, modal, closeModal, confirmBox, F, listEd, card, ph, deltaHTML, statusBdg, rangePicker, curRange, csv, readImg, allImages,
-    view, render, rerender, get, set, save, get draft() { return draft; }, dirty, discard, publish, download, preview, gh, token, users, saveUsers, sha, PERMS, can, get me() { return me; }, useDraft, boot, LS
+    view, render, rerender, get, set, save, storeUrl, wp: WP, wpSync, get draft() { return draft; }, dirty, discard, publish, download, preview, gh, token, users, saveUsers, sha, PERMS, can, get me() { return me; }, useDraft, boot, LS
   };
 })();

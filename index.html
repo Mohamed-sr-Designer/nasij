@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>NASIJ — Egyptian Streetwear · The Zodiac Drop</title>
 <meta name="description" content="Heavyweight Egyptian streetwear. The Zodiac hoodie drop — 12 signs, 5 colourways — and wide-leg sweatpants. Delivery across Cairo &amp; Giza.">
-<meta name="theme-color" content="#F3F0EA">
-<link rel="canonical" href="https://mohamed-sr-designer.github.io/naseej/">
+<meta name="theme-color" content="#08080B">
+<link rel="canonical" href="https://mohamed-sr-designer.github.io/nasij/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="NASIJ">
 <meta property="og:title" content="NASIJ — Egyptian Streetwear · The Zodiac Drop">
 <meta property="og:description" content="12 signs. 5 colourways. Reserve your zodiac hoodie with a 20% deposit.">
-<meta property="og:image" content="https://mohamed-sr-designer.github.io/naseej/images/zodiac/zodiac-banner.jpg">
+<meta property="og:image" content="https://mohamed-sr-designer.github.io/nasij/images/zodiac/zodiac-banner.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="images/logo-en.png">
 <link rel="manifest" href="manifest.json">
@@ -20,26 +20,36 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,400..900&family=Instrument+Sans:wdth,wght@75..100,400..700&family=JetBrains+Mono:wght@400;500;700&family=Alexandria:wght@400..900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Symbols:wght@400;700&text=%E2%99%88%E2%99%89%E2%99%8A%E2%99%8B%E2%99%8C%E2%99%8D%E2%99%8E%E2%99%8F%E2%99%90%E2%99%91%E2%99%92%E2%99%93&display=swap">
 <link rel="preload" as="image" href="images/zodiac/zodiac-banner.jpg" fetchpriority="high">
-<link rel="stylesheet" href="assets/css/store.css?v=1">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"ClothingStore","name":"NASIJ","alternateName":"نسيج","url":"https://mohamed-sr-designer.github.io/naseej/","image":"https://mohamed-sr-designer.github.io/naseej/images/zodiac/zodiac-banner.jpg","areaServed":["Cairo","Giza"],"currenciesAccepted":"EGP","sameAs":["https://instagram.com/nasij_brand"]}</script>
+<link rel="stylesheet" href="assets/css/store.css?v=2">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ClothingStore","name":"NASIJ","alternateName":"نسيج","url":"https://mohamed-sr-designer.github.io/nasij/","image":"https://mohamed-sr-designer.github.io/nasij/images/zodiac/zodiac-banner.jpg","areaServed":["Cairo","Giza"],"currenciesAccepted":"EGP","sameAs":["https://instagram.com/nasij_brand"]}</script>
 <script>
   /* set language / theme before first paint so there is no flash */
   (function () { try {
     var l = JSON.parse(localStorage.getItem('nz_lang')), m = JSON.parse(localStorage.getItem('nz_mode'));
     if (l) { document.documentElement.lang = l; document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr'; }
     if (m) document.documentElement.dataset.mode = m;
+    var th = JSON.parse(localStorage.getItem('nz_theme_cache') || 'null'), st = document.documentElement.style;
+    if (th) { if (th.g1) { st.setProperty('--g1', th.g1); st.setProperty('--g2', th.g2); st.setProperty('--g3', th.g3); } if (th.grad) st.setProperty('--grad', th.grad); if (th.night) st.setProperty('--night', th.night); }
   } catch (e) {} })();
   /* the first version of the site installed an offline service worker — retire it */
   if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.update().catch(function () {}); }); }).catch(function () {});
 </script>
 </head>
 <body>
-<div class="loader" id="loader" aria-hidden="true"><span class="loader__g">♌&#xFE0E;</span></div>
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="ld">
+    <div class="ld__orbit"><span style="--i:0">♈&#xFE0E;</span><span style="--i:1">♉&#xFE0E;</span><span style="--i:2">♊&#xFE0E;</span><span style="--i:3">♋&#xFE0E;</span><span style="--i:4">♌&#xFE0E;</span><span style="--i:5">♍&#xFE0E;</span><span style="--i:6">♎&#xFE0E;</span><span style="--i:7">♏&#xFE0E;</span><span style="--i:8">♐&#xFE0E;</span><span style="--i:9">♑&#xFE0E;</span><span style="--i:10">♒&#xFE0E;</span><span style="--i:11">♓&#xFE0E;</span></div>
+    <svg class="ld__ring" viewBox="0 0 100 100"><defs><linearGradient id="ldg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--g1,#C4B5FD)"/><stop offset=".5" style="stop-color:var(--g2,#F9A8D4)"/><stop offset="1" style="stop-color:var(--g3,#FDD7AA)"/></linearGradient></defs><circle cx="50" cy="50" r="46" stroke="rgba(243,240,234,.08)"/><circle cx="50" cy="50" r="46" stroke="url(#ldg)" stroke-dasharray="72 220"/></svg>
+    <img class="ld__logo" src="images/logo-en-white.png" alt="" width="120" height="26">
+  </div>
+  <div class="ld__bar"><i></i></div>
+  <span class="ld__txt"><span class="ld__en">Aligning the stars</span><span class="ld__ar">بنرتّب النجوم</span></span>
+</div>
 <div id="app"></div>
 <noscript><p style="padding:2rem;font-family:sans-serif">NASIJ needs JavaScript to run. · نسيج محتاج JavaScript يشتغل.</p></noscript>
-<script src="assets/js/defaults.js?v=1"></script>
-<script src="assets/js/core.js?v=1"></script>
-<script src="assets/js/track.js?v=1"></script>
-<script src="assets/js/store.js?v=1"></script>
+<script src="assets/js/defaults.js?v=2"></script>
+<script src="assets/js/core.js?v=2"></script>
+<script src="assets/js/track.js?v=2"></script>
+<script src="assets/js/store.js?v=2"></script>
 </body>
 </html>

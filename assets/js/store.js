@@ -42,8 +42,8 @@
   let route = { path: '/', parts: [], q: {} };
   const onceTimers = [];
   const logo = () => `<a class="logo" href="#/" aria-label="${esc(L(S(), 'name'))}">
-      <img class="logo-l" src="${esc((C().theme || {}).logo || 'images/logo-en.png')}" alt="${esc(L(S(), 'name'))}" width="120" height="26">
-      <img class="logo-d" src="${esc((C().theme || {}).logoLight || 'images/logo-en-white.png')}" alt="" width="120" height="26" aria-hidden="true"></a>`;
+      <img class="logo-l" src="${esc(N.abs((C().theme || {}).logo || 'images/logo-en.png'))}" alt="${esc(L(S(), 'name'))}" width="120" height="26">
+      <img class="logo-d" src="${esc(N.abs((C().theme || {}).logoLight || 'images/logo-en-white.png'))}" alt="" width="120" height="26" aria-hidden="true"></a>`;
 
   function toast(msg, opts) {
     opts = opts || {};
@@ -60,6 +60,11 @@
     const c = N.countdown(to);
     return `<div class="cd ${cls || ''}" data-cd="${to}">${[['d', c.d, 'c.days'], ['h', c.h, 'c.hrs'], ['m', c.m, 'c.min'], ['s', c.s, 'c.sec']].map(([u, v, k]) =>
       `<div class="cd__c"><b class="cd__n" data-u="${u}">${pad(v)}</b><span class="cd__l mono">${t(k)}</span></div>`).join('')}</div>`;
+  }
+  function tcdHTML(to) {
+    const c = N.countdown(to);
+    return `<div class="tcd" data-cd="${to}">${[['d', c.d, 'c.days'], ['h', c.h, 'c.hrs'], ['m', c.m, 'c.min'], ['s', c.s, 'c.sec']].map(([u, v, k]) =>
+      `<div class="tcd__c"><b class="tcd__n" data-u="${u}">${pad(v)}</b><span class="tcd__l">${t(k)}</span></div>`).join('')}</div>`;
   }
   function tick() {
     $$('[data-cd]').forEach(el => {
@@ -133,15 +138,20 @@
   /* ─────────────────────────── shell ─────────────────────────── */
   function applyTheme() {
     const th = C().theme || {}, r = document.documentElement.style;
-    if (th.accent) r.setProperty('--signal', th.accent);
+    const stops = th.gradient === false ? [] : [th.g1, th.g2, th.g3].filter(Boolean);
+    const solid = th.accent || stops[0] || '#C4B5FD', g = stops.length ? stops : [solid];
+    r.setProperty('--signal', solid);
+    r.setProperty('--g1', g[0]); r.setProperty('--g2', g[1] || g[0]); r.setProperty('--g3', g[2] || g[1] || g[0]);
+    r.setProperty('--grad', g.length > 1 ? 'linear-gradient(' + (+th.angle || 105) + 'deg, ' + g.join(', ') + ')' : solid);
     if (th.night) r.setProperty('--night', th.night);
     if (th.paper) r.setProperty('--paper', th.paper);
     if (th.radius != null) r.setProperty('--r', th.radius + 'px');
     document.documentElement.dataset.grain = th.grain === false ? '0' : '1';
-    // accent contrast: pick the readable ink for the accent
-    const hx = (th.accent || '#D4FF3F').replace('#', ''), rgb = [0, 2, 4].map(i => parseInt(hx.substr(i, 2), 16) / 255).map(c => c <= .03928 ? c / 12.92 : Math.pow((c + .055) / 1.055, 2.4));
-    const lum = .2126 * rgb[0] + .7152 * rgb[1] + .0722 * rgb[2];
-    r.setProperty('--signal-ink', lum > .35 ? '#0B0B0D' : '#FFFFFF');
+    // readable ink on the accent: judged by the darkest stop
+    const lum = h => { const x = String(h || '#000000').replace('#', ''); const c = [0, 2, 4].map(i => parseInt(x.substr(i, 2), 16) / 255).map(v => v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4)); return .2126 * c[0] + .7152 * c[1] + .0722 * c[2]; };
+    const ink = Math.min.apply(null, g.map(lum)) > .3 ? '#0B0B0D' : '#FFFFFF';
+    r.setProperty('--signal-ink', ink);
+    try { localStorage.setItem('nz_theme_cache', JSON.stringify({ g1: g[0], g2: g[1] || g[0], g3: g[2] || g[1] || g[0], grad: r.getPropertyValue('--grad'), night: th.night || '' })); } catch (e) { }
   }
   function applyLang() {
     const h = document.documentElement;
@@ -160,14 +170,14 @@
         <div class="wrap hdr__in">
           <div style="display:flex;align-items:center;gap:6px">
             <button class="icon-btn hdr__menu" data-open="menu" aria-label="${t('nav.menu')}">${icon('menu')}</button>
-            <nav class="hdr__nav" aria-label="primary">${(nav.header || []).map((l, i) => `<a class="link${i === 0 && live ? ' is-live' : ''}" href="${esc(l.to)}">${esc(LL(l))}</a>`).join('')}</nav>
+            <nav class="hdr__nav" aria-label="primary">${(nav.header || []).map(l => `<a class="link${l.to === '#/drops' && live ? ' is-live' : ''}" href="${esc(l.to)}">${esc(LL(l))}</a>`).join('')}</nav>
           </div>
           ${logo()}
           <div class="hdr__act">
             <button class="lang-pill hide-m" data-lang aria-label="language">${N.isAr() ? 'EN' : 'ع'}</button>
             <button class="icon-btn hide-m" data-mode aria-label="${t('nav.theme')}">${icon(mode() === 'dark' ? 'sun' : 'moon')}</button>
             <button class="icon-btn" data-open="search" aria-label="${t('nav.search')}">${icon('search')}</button>
-            <a class="icon-btn hide-m" href="#/account" aria-label="${t('nav.saved')}">${icon('heart')}<span class="badge-dot" data-count="wish"></span></a>
+            <a class="icon-btn hide-m" href="#/saved" aria-label="${t('nav.saved')}">${icon('heart')}<span class="badge-dot" data-count="wish"></span></a>
             <button class="icon-btn" data-open="bag" aria-label="${t('nav.bag')}">${icon('bag')}<span class="badge-dot" data-count="bag"></span></button>
           </div>
         </div>
@@ -179,7 +189,7 @@
         <a href="#/shop" data-tab="/shop">${icon('grid')}<span>${t('nav.shop')}</span></a>
         <a href="#/drops" data-tab="/drops">${icon('orbit')}<span>${t('nav.drops')}</span></a>
         <a href="#" data-open="bag" data-tab="/bag">${icon('bag')}<span>${t('nav.bag')}</span><span class="badge-dot" data-count="bag"></span></a>
-        <a href="#/account" data-tab="/account">${icon('user')}<span>${t('nav.account')}</span></a>
+        <a href="#/saved" data-tab="/saved">${icon('heart')}<span>${t('nav.saved')}</span><span class="badge-dot" data-count="wish"></span></a>
       </nav>
       <div class="scrim" id="scrim"></div>
       <aside class="drawer drawer--start" id="d-menu" aria-label="${t('nav.menu')}" aria-hidden="true"></aside>
@@ -199,7 +209,7 @@
     $('#ftr').innerHTML = `<div class="wrap">
         <div class="ftr__grid">
           <div>
-            <div class="logo" style="height:30px"><img src="${esc((C().theme || {}).logoLight || 'images/logo-en-white.png')}" alt="${esc(L(s, 'name'))}" style="height:30px;width:auto"></div>
+            <div class="logo" style="height:30px"><img src="${esc(N.abs((C().theme || {}).logoLight || 'images/logo-en-white.png'))}" alt="${esc(L(s, 'name'))}" style="height:30px;width:auto"></div>
             <p class="muted" style="max-width:36ch;margin:16px 0 0">${esc(L(s, 'tagline'))}</p>
             <div class="pay-row" style="margin-top:18px">${pays}</div>
           </div>
@@ -213,7 +223,6 @@
             <li class="muted">${t('m.deliveryArea')}</li></ul></div>
         </div>
       </div>
-      <div class="ftr__wm" aria-hidden="true">NASIJ</div>
       <div class="wrap ftr__bot"><span class="mono">${t('m.rights', { y: new Date().getFullYear() })}</span>
         <span style="display:flex;gap:8px"><button class="lang-pill" data-lang style="color:#F3F0EA;border-color:rgba(243,240,234,.3)">${N.isAr() ? 'English' : 'العربية'}</button><button class="lang-pill" data-mode style="color:#F3F0EA;border-color:rgba(243,240,234,.3)">${mode() === 'dark' ? '☀' : '☾'}</button></span></div>`;
   }
@@ -221,7 +230,7 @@
 
   function menu() {
     const nav = C().nav || {};
-    const links = (nav.header || []).concat([{ en: 'Shop all', ar: 'كل المنتجات', to: '#/shop' }, { en: 'Your orders', ar: 'طلباتك', to: '#/account' }]);
+    const links = (nav.header || []).concat([{ en: 'Shop all', ar: 'كل المنتجات', to: '#/shop' }, { en: 'Saved', ar: 'المحفوظ', to: '#/saved' }]);
     $('#d-menu').innerHTML = `<div class="drawer__h">${logo()}<button class="icon-btn" data-close aria-label="${t('nav.close')}">${icon('close')}</button></div>
       <div class="drawer__b"><nav class="mnav">${links.map((l, i) => `<a href="${esc(l.to)}"><span class="disp">${esc(LL(l))}</span><span class="mono">${pad(i + 1)}</span></a>`).join('')}</nav>
       <div class="mnav__meta"><button class="btn btn--line btn--sm" data-lang>${t('nav.lang')}</button><button class="btn btn--line btn--sm" data-mode>${icon(mode() === 'dark' ? 'sun' : 'moon')} ${t('nav.theme')}</button><a class="btn btn--line btn--sm" href="${N.wa()}" target="_blank" rel="noopener">${icon('wa')} WhatsApp</a></div></div>`;
@@ -333,9 +342,12 @@
   /* ─────────────────────────── HOME ─────────────────────────── */
   const SECTIONS = {
     hero(s) {
-      const d = N.drop(), open = N.dropOpen();
-      const words = L(s, 'title').split(' ');
-      const half = Math.ceil(words.length / 2);
+      const d = N.drop(), open = N.dropOpen(), signs = C().signs || [];
+      const title = L(s, 'title');
+      let lines = (title.match(/[^.!?؟…]+[.!?؟…]*/g) || [title]).map(x => x.trim()).filter(Boolean);
+      if (lines.length < 2) { const w = title.split(' '), h = Math.ceil(w.length / 2); lines = [w.slice(0, h).join(' '), w.slice(h).join(' ')].filter(Boolean); }
+      lines = [lines[0], lines.slice(1).join(' ')].filter(Boolean);
+      const n = N.reservedCount(), goal = +d.goal || 100, pct = Math.min(100, Math.round(n / goal * 100));
       return `<section class="hero tone-dark grain">
         <div class="hero__img"><img src="${esc(s.image)}" alt="" fetchpriority="high" width="1920" height="1020"></div>
         <div class="chart-lines" aria-hidden="true"></div>
@@ -344,20 +356,20 @@
         <div class="wrap hero__body">
           <div>
             <span class="mono kick" style="color:rgba(243,240,234,.8)">${esc(L(s, 'kicker'))}</span>
-            <h1 class="disp h1 hero__title"><span class="ln"><span>${esc(words.slice(0, half).join(' '))}</span></span>${words.length > 1 ? `<span class="ln"><span>${esc(words.slice(half).join(' '))}</span></span>` : ''}</h1>
+            <h1 class="disp h1 hero__title">${lines.map(x => `<span class="ln"><span>${esc(x)}</span></span>`).join('')}</h1>
             <p class="lead">${esc(L(s, 'text'))}</p>
             <div class="hero__cta">
               <a class="btn btn--signal" href="${esc(s.to || '#/drops')}">${esc(L(s, 'cta'))} ${arr()}</a>
               ${L(s, 'cta2') ? `<a class="btn btn--line" href="${esc(s.to2 || '#/shop')}">${esc(L(s, 'cta2'))}</a>` : ''}
             </div>
           </div>
-          ${d.on ? `<div class="hero__side">
-            <div class="cd-head"><span class="mono">${open ? t('d.opens') : t('d.live')}</span><span class="mono">${esc(N.date(d.date, { day: 'numeric', month: 'short' }))}</span></div>
-            ${open ? cdHTML(N.dropTime()) : ''}
-            ${meterHTML()}
-          </div>` : ''}
+          ${d.on ? `<div class="hero__side"><div class="tcard">
+            <div class="tcard__h mono"><span class="tcard__live">${open ? t('d.opens') : t('d.live')}</span><span class="tcard__date">${t('c.drop')} · ${esc(N.date(d.date, { day: 'numeric', month: 'short' }))}</span></div>
+            ${open ? tcdHTML(N.dropTime()) : ''}
+            <div style="display:grid;gap:8px"><div class="tcard__m mono"><span>${t('d.reserved', { n, goal })}</span><span>${pct}%</span></div><div class="meter" style="--p:${Math.max(2, pct)}%"><i></i></div></div>
+            <div class="tcard__glyphs" aria-hidden="true">${signs.map((sg, i) => `<span style="--i:${i}">${glyph(sg.glyph)}</span>`).join('')}</div>
+          </div></div>` : ''}
         </div>
-        <div class="wordmark" aria-hidden="true">NASIJ</div>
       </section>`;
     },
     dial(s) {
@@ -426,7 +438,7 @@
       return `<section class="sec band"><div class="wrap"><div class="band__in">
         <div><span class="mono kick kick--ink">${esc(L(s, 'kicker'))}</span><h2 class="disp h2" style="margin-top:14px">${esc(L(s, 'title'))}</h2></div>
         <div style="display:grid;gap:18px;justify-items:start"><p class="lead" style="color:rgba(11,11,13,.8)">${esc(L(s, 'text'))}</p><a class="btn" href="${esc(s.to || '#/custom')}">${esc(L(s, 'cta'))} ${arr()}</a></div>
-      </div></div><div class="band__ticker" aria-hidden="true">${Array(6).fill(esc(LL({ en: 'CUSTOM ✦ BULK ✦ TEAMS ✦ EVENTS ✦', ar: 'تخصيص ✦ جملة ✦ فرق ✦ إيفنتات ✦' }))).join(' ')}</div></section>`;
+      </div></div></section>`;
     },
     faq(s) {
       const items = (C().pages.faq || []).slice(0, s.limit || 5);
@@ -457,11 +469,11 @@
       <circle cx="${cx}" cy="${cy}" r="${R2 + 24}" fill="none" stroke="var(--line)"/>
       <circle cx="${cx}" cy="${cy}" r="120" fill="none" stroke="var(--line)" stroke-dasharray="2 6"/>
       <line x1="${cx}" y1="-10" x2="${cx}" y2="610" stroke="var(--line)"/><line x1="-10" y1="${cy}" x2="610" y2="${cy}" stroke="var(--line)"/>
-      <g class="dial__ring" id="dialRing">
+      <g class="dial__ring" id="dialRing" transform="rotate(0 300 300)">
         ${signs.map((s, i) => { const [gx, gy] = pt(262, i * 30), [nx, ny] = pt(210, i * 30);
           return `<path class="dial__seg" d="${seg(i)}" data-si="${i}"><title>${esc(LL(s))}</title></path>
-          <g class="dial__lab" data-lab="${i}" style="transform-box:fill-box;transform-origin:center"><text class="dial__glyph" x="${gx.toFixed(1)}" y="${(gy + 10).toFixed(1)}" text-anchor="middle">${glyph(s.glyph)}</text></g>
-          <g class="dial__lab" data-lab="${i}" style="transform-box:fill-box;transform-origin:center"><text class="dial__name" x="${nx.toFixed(1)}" y="${(ny + 4).toFixed(1)}" text-anchor="middle">${esc(LL(s))}</text></g>`; }).join('')}
+          <g class="dial__lab" data-lab="${i}" data-cx="${gx.toFixed(1)}" data-cy="${gy.toFixed(1)}"><text class="dial__glyph" x="${gx.toFixed(1)}" y="${(gy + 10).toFixed(1)}" text-anchor="middle">${glyph(s.glyph)}</text></g>
+          <g class="dial__lab" data-lab="${i}" data-cx="${nx.toFixed(1)}" data-cy="${ny.toFixed(1)}"><text class="dial__name" x="${nx.toFixed(1)}" y="${(ny + 4).toFixed(1)}" text-anchor="middle">${esc(LL(s))}</text></g>`; }).join('')}
       </g>
       <path class="dial__pointer" d="M${cx - 11} -16 L${cx + 11} -16 L${cx} 6 Z"/>
     </svg>`;
@@ -469,14 +481,12 @@
   function dialSelect(i, color, spin) {
     const signs = C().signs || []; if (!signs.length) return;
     i = ((i % 12) + 12) % 12; dialState.i = i; if (color) dialState.color = color;
-    // rotate the shortest way so sign i sits under the pointer
-    let target = -i * 30; const cur = dialState.rot;
+    // rotate the shortest way (from what is on screen) so sign i sits under the pointer
+    let target = -i * 30; const cur = dialState.shown != null ? dialState.shown : dialState.rot;
     while (target - cur > 180) target -= 360; while (target - cur < -180) target += 360;
     dialState.rot = target;
-    const ring = $('#dialRing'); if (!ring) return;
-    ring.style.transform = `rotate(${target}deg)`;
-    $$('.dial__lab').forEach(g => { g.style.transform = `rotate(${-target}deg)`; g.style.transition = spin === false ? 'none' : 'transform 1s cubic-bezier(.2,.8,.2,1)'; });
-    ring.style.transition = spin === false ? 'none' : '';
+    if (!$('#dialRing')) return;
+    dialTo(target, spin === false ? 0 : 950);
     $$('.dial__seg').forEach(p => p.classList.toggle('on', +p.dataset.si === i));
     const s = signs[i], p = N.product('z-' + s.id);
     const v = p ? N.variant(p, dialState.color) : null;
@@ -492,6 +502,21 @@
     const go = $('#dialGo');
     if (p) { go.href = `#/products/${p.handle}?c=${dialState.color}`; go.innerHTML = `${esc(t('d.reserveSign', { sign: LL(s) }))} ${arr()}`; }
   }
+  let dialAnim = 0;
+  function dialPaint(rot) {
+    const ring = $('#dialRing'); if (!ring) return;
+    ring.setAttribute('transform', 'rotate(' + rot.toFixed(3) + ' 300 300)');
+    $$('.dial__lab').forEach(g => g.setAttribute('transform', 'rotate(' + (-rot).toFixed(3) + ' ' + g.dataset.cx + ' ' + g.dataset.cy + ')'));
+  }
+  function dialTo(target, ms) {
+    cancelAnimationFrame(dialAnim);
+    const from = dialState.shown != null ? dialState.shown : target;
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!ms || reduce || Math.abs(target - from) < .05) { dialState.shown = target; dialPaint(target); return; }
+    const t0 = performance.now(), ease = x => 1 - Math.pow(1 - x, 4);
+    const step = now => { const k = Math.min(1, (now - t0) / ms), v = from + (target - from) * ease(k); dialState.shown = v; dialPaint(v); if (k < 1) dialAnim = requestAnimationFrame(step); };
+    dialAnim = requestAnimationFrame(step);
+  }
   function mountDial() {
     const box = $('#dialBox'); if (!box) return;
     const today = new Date(), s0 = N.signForDate(today.getMonth() + 1, today.getDate());
@@ -500,22 +525,21 @@
     const angle = e => { const r = box.getBoundingClientRect(); const x = (e.touches ? e.touches[0].clientX : e.clientX) - (r.left + r.width / 2), y = (e.touches ? e.touches[0].clientY : e.clientY) - (r.top + r.height / 2); return Math.atan2(x, -y) * 180 / Math.PI; };
     box.addEventListener('pointerdown', e => {
       if (e.target.closest('.dial__center')) return;
-      drag = { a0: angle(e), r0: dialState.rot, moved: false, target: e.target };
+      cancelAnimationFrame(dialAnim);
+      drag = { last: angle(e), rot: dialState.shown != null ? dialState.shown : dialState.rot, moved: 0, target: e.target };
       box.classList.add('dragging'); box.setPointerCapture && box.setPointerCapture(e.pointerId);
     });
     box.addEventListener('pointermove', e => {
       if (!drag) return;
-      let d = angle(e) - drag.a0; if (d > 180) d -= 360; if (d < -180) d += 360;
-      if (Math.abs(d) > 3) drag.moved = true;
-      const rot = drag.r0 + d; dialState.rot = rot;
-      $('#dialRing').style.transform = `rotate(${rot}deg)`;
-      $$('.dial__lab').forEach(g => { g.style.transition = 'none'; g.style.transform = `rotate(${-rot}deg)`; });
+      const a = angle(e); let d = a - drag.last; if (d > 180) d -= 360; if (d < -180) d += 360;
+      drag.last = a; drag.moved += Math.abs(d); drag.rot += d;
+      dialState.shown = drag.rot; dialPaint(drag.rot);
     });
     const end = () => {
       if (!drag) return;
       box.classList.remove('dragging');
-      if (!drag.moved && drag.target.dataset && drag.target.dataset.si != null) dialSelect(+drag.target.dataset.si);
-      else { const i = Math.round(-dialState.rot / 30); dialSelect(i); }
+      if (drag.moved < 4 && drag.target.dataset && drag.target.dataset.si != null) dialSelect(+drag.target.dataset.si);
+      else dialSelect(Math.round(-dialState.shown / 30));
       drag = null;
     };
     box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
@@ -577,9 +601,9 @@
     if (!p || (p.status !== 'active' && !N.previewing()) || !col || (col.status !== 'active' && !N.previewing())) return view404(t('p.notFound'));
     const v = N.variant(p, route.q.c);
     const pre = N.isPre(p), d = N.drop(), sg = p.sign ? N.sign(p.sign) : null;
-    pdp = { p, v, size: pdp.p && pdp.p.id === p.id ? pdp.size : null };
+    pdp = { p, v, size: pdp.p && pdp.p.id === p.id ? pdp.size : null, cur: 0 };
     const imgs = v.images;
-    const lbl = i => (p.sign ? (i === 0 ? t('c.backSide') : t('c.front')) : '');
+    const lbl = galLbl;
     const care = (C().pages.policies || []).find(x => x.id === 'care');
     const ship = (C().pages.policies || []).find(x => x.id === 'shipping');
     const el = sg ? (C().elements || {})[sg.element] : null;
@@ -589,8 +613,10 @@
       <div class="crumbs mono" style="padding-top:22px"><a href="#/">${t('nav.home')}</a><span>/</span><a href="#/collections/${esc(col.handle)}">${esc(L(col, 'short') || L(col, 'title'))}</a><span>/</span><span>${esc(N.title(p))}</span></div>
       <div class="pdp">
         <div>
-          <div class="gal" id="gal">${imgs.map((src, i) => `<div class="gal__i" data-zoom="${esc(src)}">${lbl(i) ? `<span class="gal__lbl tag tag--line">${lbl(i)}</span>` : ''}<img src="${esc(src)}" alt="${esc(N.title(p) + ' — ' + N.colourName(v) + (lbl(i) ? ' — ' + lbl(i) : ''))}" ${i ? 'loading="lazy"' : 'fetchpriority="high"'} width="900" height="1200"></div>`).join('')}</div>
-          ${imgs.length > 1 ? `<div class="gal__dots" id="galDots">${imgs.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : ''}
+          <div class="gal${imgs.length > 1 ? '' : ' gal--one'}" id="gal">
+            ${imgs.length > 1 ? `<div class="gal__thumbs" id="galThumbs">${galThumbs(0)}</div>` : ''}
+            <div class="gal__main" id="galMain">${lbl(0) ? `<span class="gal__lbl tag tag--line" id="galLbl">${lbl(0)}</span>` : ''}<img id="galImg" src="${esc(imgs[0])}" alt="${esc(galAlt(0))}" fetchpriority="high" width="900" height="1200"></div>
+          </div>
         </div>
         <div class="buy">
           <div style="display:grid;gap:12px">
@@ -628,9 +654,24 @@
         ${pre ? `<button class="btn btn--signal" data-buy="reserve">${t('c.preorder')}</button>` : `<button class="btn" data-buy="add">${t('p.addToBag')}</button>`}</div>
       </section>`;
   }
+  function galLbl(i) { const p = pdp.p; if (!p) return ''; return p.sign ? (i === 0 ? t('c.backSide') : i === 1 ? t('c.front') : '') : ''; }
+  function galAlt(i) { const { p, v } = pdp; return N.title(p) + ' — ' + N.colourName(v) + (galLbl(i) ? ' — ' + galLbl(i) : ''); }
+  function galThumbs(cur) {
+    const imgs = pdp.v.images;
+    return imgs.map((src, i) => i === cur ? '' : `<button class="gal__t" data-gal="${i}" aria-label="${esc(galLbl(i) || String(i + 1))}"><img src="${esc(src)}" alt="" loading="lazy" width="180" height="240">${galLbl(i) ? `<span>${esc(galLbl(i))}</span>` : ''}</button>`).join('');
+  }
+  function galShow(i) {
+    const img = $('#galImg'), th = $('#galThumbs'); if (!img || !pdp.v || i === pdp.cur) return;
+    const src = pdp.v.images[i]; if (!src) return;
+    pdp.cur = i;
+    img.classList.add('out');
+    const pre = new Image();
+    pre.onload = pre.onerror = () => setTimeout(() => { img.src = src; img.alt = galAlt(i); requestAnimationFrame(() => img.classList.remove('out')); }, 160);
+    pre.src = src;
+    const lb = $('#galLbl'); if (lb) lb.textContent = galLbl(i);
+    if (th) th.innerHTML = galThumbs(i);
+  }
   function mountProduct() {
-    const g = $('#gal'), dots = $('#galDots');
-    if (g && dots) g.addEventListener('scroll', () => { const i = Math.round(Math.abs(g.scrollLeft) / g.clientWidth); $$('i', dots).forEach((d, k) => d.classList.toggle('on', k === i)); }, { passive: true });
     const ctas = $('#buyCtas'), sb = $('#stickyBuy');
     if (ctas && sb && 'IntersectionObserver' in window) {
       const io = new IntersectionObserver(es => es.forEach(e => sb.classList.toggle('on', !e.isIntersecting && e.boundingClientRect.top < 0)));
@@ -657,7 +698,7 @@
     const d = N.drop(), open = N.dropOpen();
     const list = N.inCollection(d.collection);
     const col = N.collection(d.collection);
-    return `<section class="phead phead--img tone-dark grain" style="min-height:70vh"><div class="bg"><img src="${esc((col && col.banner) || 'images/zodiac/zodiac-banner.jpg')}" alt=""></div>
+    return `<section class="phead phead--img tone-dark grain" style="min-height:70vh"><div class="bg"><img src="${esc((col && col.banner) || N.abs('images/zodiac/zodiac-banner.jpg'))}" alt=""></div>
       <div class="chart-lines" aria-hidden="true"></div>
       <div class="wrap" style="display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:32px;align-items:end" data-dhead>
         <div><div class="crumbs mono"><a href="#/">${t('nav.home')}</a><span>/</span><span>${t('c.drop')}</span></div>
@@ -774,7 +815,7 @@
       </div>
       <div class="receipt" aria-label="receipt">
         <span class="stamp">${t('o.st.' + o.status)}</span>
-        <div style="display:flex;align-items:center;gap:10px"><img src="images/logo-en.png" alt="NASIJ" style="height:22px;width:auto"><span class="muted" style="font-size:.72rem">${esc(N.date(o.date, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }))}</span></div>
+        <div style="display:flex;align-items:center;gap:10px"><img src="${esc(N.abs('images/logo-en.png'))}" alt="NASIJ" style="height:22px;width:auto"><span class="muted" style="font-size:.72rem">${esc(N.date(o.date, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }))}</span></div>
         <hr>
         ${o.items.map(i => `<div class="r"><span>${esc(ar ? i.title_ar : i.title_en)}<br><small class="muted">${esc(ar ? i.color_ar : i.color_en)} · ${esc(i.size)} × ${i.qty}${i.pre ? ' · ' + t('c.preorder') : ''}</small></span><b class="num">${money(i.price * i.qty)}</b></div>`).join('')}
         <hr>
@@ -789,14 +830,12 @@
   }
 
   /* ─────────────────────────── ACCOUNT ─────────────────────────── */
-  function viewAccount() {
-    const os = N.orders.list(), ws = N.wish.list().map(id => N.product(id)).filter(p => p && p.status === 'active');
-    return `<section class="phead tone-light"><div class="wrap"><h1 class="disp h1">${t('a.title')}</h1></div></section>
-      <section class="sec sec--tight tone-light"><div class="wrap" style="display:grid;gap:14px">
-        ${os.length ? os.map(o => `<a href="#/order/${esc(o.id)}" class="opt" style="align-items:center;justify-content:space-between"><span><b class="mono">${esc(o.id)}</b><br><small>${esc(N.date(o.date))} · ${o.items.reduce((n, i) => n + i.qty, 0)} ${t('c.items')}</small></span><span style="display:flex;gap:12px;align-items:center"><span class="tag${o.status === 'delivered' ? '' : ' tag--line'}">${t('o.st.' + o.status)}</span><b class="num mono">${money(o.totals.total)}</b></span></a>`).join('') : `<p class="muted">${t('a.none')}</p>`}
-      </div></section>
-      <section class="sec tone-light" style="padding-top:20px"><div class="wrap">${sh(t('a.saved'), '', '')}
-        ${ws.length ? `<div class="grid">${ws.map((p, i) => card(p, { i })).join('')}</div>` : `<p class="muted">${t('a.noSaved')}</p>`}</div></section>`;
+  function viewSaved() {
+    const ws = N.wish.list().map(id => N.product(id)).filter(p => p && p.status === 'active');
+    return `<section class="phead tone-light"><div class="wrap"><div class="crumbs mono"><a href="#/">${t('nav.home')}</a><span>/</span><span>${t('nav.saved')}</span></div><h1 class="disp h1" style="margin-top:10px">${t('a.saved')}</h1></div></section>
+      <section class="sec sec--tight tone-light"><div class="wrap">
+        ${ws.length ? `<div class="grid">${ws.map((p, i) => card(p, { i })).join('')}</div>` : `<div class="empty"><div class="big">${glyph('♡')}</div><p>${t('a.noSaved')}</p><a class="btn" href="#/shop">${t('c.shopNow')} ${arr()}</a></div>`}
+      </div></section>`;
   }
 
   /* ─────────────────────────── CUSTOM REQUEST ─────────────────────────── */
@@ -876,12 +915,67 @@
   /* ─────────────────────────── INFO PAGES ─────────────────────────── */
   function simpleHead(title, kick) { return `<section class="phead tone-light"><div class="wrap"><div class="crumbs mono"><a href="#/">${t('nav.home')}</a><span>/</span><span>${esc(title)}</span></div>${kick ? `<span class="mono kick kick--ink">${esc(kick)}</span>` : ''}<h1 class="disp h1" style="margin-top:10px">${esc(title)}</h1></div></section>`; }
   function viewFaq() { return simpleHead(t('m.faq')) + `<section class="sec sec--tight tone-light"><div class="wrap"><div class="faq" style="max-width:900px">${faqItems(C().pages.faq || [])}</div></div></section>`; }
+  let sgState = { g: 'hoodie', unit: 'cm' };
   function viewSizeGuide() {
-    const g = C().pages.sizeGuide || {}, rows = g.rows || [];
-    return simpleHead(t('m.sizeGuide')) + `<section class="sec sec--tight tone-light"><div class="wrap" style="display:grid;gap:28px;max-width:900px"><p class="lead" style="max-width:none">${esc(L(g, 'text'))}</p>
-      ${rows.length ? `<table class="size-table"><thead><tr><th>${t('c.size')}</th><th>${LL({ en: 'Chest (cm)', ar: 'الصدر (سم)' })}</th><th>${LL({ en: 'Length (cm)', ar: 'الطول (سم)' })}</th><th>${LL({ en: 'Sleeve (cm)', ar: 'الكم (سم)' })}</th></tr></thead><tbody>${rows.map(r => `<tr><td><b>${esc(r.size)}</b></td><td>${esc(r.chest)}</td><td>${esc(r.length)}</td><td>${esc(r.sleeve)}</td></tr>`).join('')}</tbody></table>` : ''}
-      <div class="sizes">${['S', 'M', 'L', 'XL', 'XXL'].map(s => `<span class="sz" style="display:grid;place-items:center">${s}</span>`).join('')}</div>
-      <div><a class="btn" href="${N.wa(LL({ en: 'Hi NASIJ, I need help with my size.', ar: 'أهلاً نسيج، محتاج مساعدة في المقاس.' }))}" target="_blank" rel="noopener">${icon('wa')} ${t('c.whatsapp')}</a></div></div></section>`;
+    return simpleHead(t('m.sizeGuide')) + `<section class="sec sec--tight tone-light"><div class="wrap sg" id="sg">${sgInner()}</div></section>`;
+  }
+  const SG_DEFS = '<defs><linearGradient id="sgGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="400" y2="400"><stop offset="0" style="stop-color:var(--g1)"/><stop offset=".5" style="stop-color:var(--g2)"/><stop offset="1" style="stop-color:var(--g3)"/></linearGradient></defs>';
+  function sgMark(x1, y1, x2, y2, k, lx, ly) {
+    return `<line class="m" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/><circle class="mk" cx="${x1}" cy="${y1}" r="3.2"/><circle class="mk" cx="${x2}" cy="${y2}" r="3.2"/><circle class="mc" cx="${lx}" cy="${ly}" r="13"/><text class="mt" x="${lx}" y="${ly + 4.5}" text-anchor="middle">${k}</text>`;
+  }
+  function hoodieSVG() {
+    return `<svg viewBox="0 0 400 400" role="img" aria-label="hoodie measurements">${SG_DEFS}
+      <path class="garm" d="M144 100 C136 52 166 16 200 16 C234 16 264 52 256 100 Z"/>
+      <path class="garm" d="M160 76 L108 96 C92 102 82 118 78 140 L46 296 L46 322 L84 322 L86 298 L128 172 L128 330 L128 352 L272 352 L272 330 L272 172 L314 298 L316 322 L354 322 L354 296 L322 140 C318 118 308 102 292 96 L240 76 Q200 108 160 76 Z"/>
+      <path class="seam" d="M128 330 L272 330 M46 298 L86 300 M314 300 L354 298 M108 96 L128 172 M292 96 L272 172"/>
+      <path class="seam" d="M150 262 L250 262 L266 320 L134 320 Z"/>
+      <path class="garm garm--in" d="M166 90 C168 56 184 38 200 38 C216 38 232 56 234 90 Q200 116 166 90 Z"/>
+      <path class="seam" d="M186 100 L184 146 M214 100 L216 146"/>
+      ${sgMark(128, 190, 272, 190, 'A', 200, 190)}
+      ${sgMark(236, 86, 236, 352, 'B', 236, 236)}
+      ${sgMark(100, 88, 36, 318, 'C', 60, 212)}
+    </svg>`;
+  }
+  function pantsSVG() {
+    return `<svg viewBox="0 0 400 410" role="img" aria-label="sweatpants measurements">${SG_DEFS}
+      <path class="garm" d="M120 40 L280 40 L280 64 L302 372 L210 372 L200 178 L190 372 L98 372 L120 64 Z"/>
+      <path class="seam" d="M120 64 L280 64 M200 64 L200 178 M140 70 C150 96 160 110 172 118 M260 70 C250 96 240 110 228 118 M100 350 L190 350 M210 350 L300 350"/>
+      <path class="seam" d="M196 40 L192 88 M204 40 L208 88"/>
+      ${sgMark(120, 22, 280, 22, 'A', 200, 22)}
+      ${sgMark(296, 40, 320, 372, 'B', 308, 206)}
+      ${sgMark(192, 186, 186, 364, 'C', 176, 282)}
+      ${sgMark(98, 392, 190, 392, 'D', 144, 392)}
+    </svg>`;
+  }
+  function sgInner() {
+    const g = C().pages.sizeGuide || {}, hood = sgState.g === 'hoodie', inch = sgState.unit === 'in';
+    const rows = hood ? (g.rows || []) : (g.pants || []);
+    const cols = hood
+      ? [['chest', 'A', { en: 'Chest', ar: 'الصدر' }, { en: 'Armpit to armpit, laid flat.', ar: 'من تحت الإبط للإبط والقطعة مفرودة.' }],
+         ['length', 'B', { en: 'Length', ar: 'الطول' }, { en: 'Highest point of the shoulder to the hem.', ar: 'من أعلى نقطة في الكتف لآخر القطعة.' }],
+         ['sleeve', 'C', { en: 'Sleeve', ar: 'الكم' }, { en: 'Shoulder seam to the end of the cuff.', ar: 'من خياطة الكتف لآخر الأستك.' }]]
+      : [['waist', 'A', { en: 'Waist', ar: 'الوسط' }, { en: 'Relaxed waistband, edge to edge.', ar: 'الأستك من الطرف للطرف من غير شد.' }],
+         ['length', 'B', { en: 'Length', ar: 'الطول' }, { en: 'Waistband to hem, along the side.', ar: 'من الوسط لآخر الرجل من الجنب.' }],
+         ['inseam', 'C', { en: 'Inseam', ar: 'الطول الداخلي' }, { en: 'Crotch seam to hem.', ar: 'من الخياطة الداخلية لآخر الرجل.' }],
+         ['hem', 'D', { en: 'Leg opening', ar: 'فتحة الرجل' }, { en: 'Hem width, laid flat.', ar: 'عرض آخر الرجل والقطعة مفرودة.' }]];
+    const cv = v => { const x = parseFloat(v); if (isNaN(x)) return esc(v || '—'); return inch ? (x / 2.54).toFixed(1) : String(x); };
+    return `<div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">
+        <div class="sg__tabs" role="tablist"><button type="button" role="tab" aria-selected="${hood}" data-sg="hoodie" class="${hood ? 'on' : ''}">${esc(LL({ en: 'Hoodies', ar: 'الهوديز' }))}</button><button type="button" role="tab" aria-selected="${!hood}" data-sg="pants" class="${!hood ? 'on' : ''}">${esc(LL({ en: 'Sweatpants', ar: 'البناطيل' }))}</button></div>
+        <div class="sg__units" role="group" aria-label="units"><button type="button" data-sgu="cm" class="${!inch ? 'on' : ''}">CM</button><button type="button" data-sgu="in" class="${inch ? 'on' : ''}">IN</button></div>
+      </div>
+      <div class="sg__card">
+        <div class="sg__art">${hood ? hoodieSVG() : pantsSVG()}</div>
+        <div style="display:grid;gap:20px"><p class="lead" style="margin:0;max-width:none">${esc(L(g, 'text'))}</p>
+          <ul class="sg__legend">${cols.map(c => `<li><b class="k">${c[1]}</b><span><strong>${esc(LL(c[2]))}</strong>${esc(LL(c[3]))}</span></li>`).join('')}</ul></div>
+      </div>
+      ${rows.length ? `<div class="sg__tbl"><table><thead><tr><th>${t('c.size')}</th>${cols.map(c => `<th><span class="k">${c[1]}</span>${esc(LL(c[2]))}</th>`).join('')}</tr></thead>
+        <tbody>${rows.map(r => `<tr><td>${esc(r.size)}</td>${cols.map(c => `<td>${cv(r[c[0]])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : ''}
+      <p class="mono muted" style="margin:0;font-size:.78rem">${esc(L(g, 'note'))} · ${inch ? 'IN' : 'CM'}</p>
+      <div class="sg__tips">
+        <div><b>${esc(LL({ en: 'Relaxed fit', ar: 'قصّة واسعة' }))}</b><span>${esc(LL({ en: 'Your usual size gives the oversized, dropped-shoulder look.', ar: 'مقاسك المعتاد بيدّي الوك الأوفرسايز بالكتف النازل.' }))}</span></div>
+        <div><b>${esc(LL({ en: 'Closer fit', ar: 'قصّة أضيق' }))}</b><span>${esc(LL({ en: 'One size down if you like it less boxy.', ar: 'مقاس أصغر لو بتحب القطعة أقل وسع.' }))}</span></div>
+        <div><b>${esc(LL({ en: 'Still unsure?', ar: 'لسه محتار؟' }))}</b><span><a class="link" href="${N.wa(LL({ en: 'Hi NASIJ, I need help with my size.', ar: 'أهلاً نسيج، محتاج مساعدة في المقاس.' }))}" target="_blank" rel="noopener">WhatsApp</a> — ${esc(LL({ en: 'send us your height and weight.', ar: 'ابعتلنا الطول والوزن.' }))}</span></div>
+      </div>`;
   }
   function viewPolicy(id) {
     const ps = C().pages.policies || [], p = ps.find(x => x.id === id) || ps[0];
@@ -914,7 +1008,7 @@
     [/^\/checkout$/, () => viewCheckout(), 'checkout'],
     [/^\/cart$/, () => { setTimeout(() => openDrawer('bag'), 50); return viewHome(); }, 'home'],
     [/^\/order\/([\w-]+)$/, m => viewOrder(m[1]), 'order'],
-    [/^\/(account|wishlist)$/, () => viewAccount(), 'account'],
+    [/^\/(saved|account|wishlist)$/, () => viewSaved(), 'saved'],
     [/^\/custom$/, () => viewCustom(), 'custom'],
     [/^\/faq$/, () => viewFaq(), 'faq'],
     [/^\/size-guide$/, () => viewSizeGuide(), 'size'],
@@ -981,7 +1075,7 @@
     if (!p.on || !N.promo.find(p.code)) return;
     const st = N.read(N.LS.popup, {});
     if (!force && (st.seen || st.claimed)) { if (!st.claimed) $('#giftFab').classList.add('on'); return; }
-    modal(`<div class="popup"><div class="popup__img tone-dark stars"><img src="images/zodiac/scorpio-black-back.jpg" alt=""></div><div class="popup__b"><span class="mono kick kick--ink">${esc(L(S(), 'name'))}</span>
+    modal(`<div class="popup"><div class="popup__img tone-dark stars"><img src="${esc(N.abs('images/zodiac/scorpio-black-back.jpg'))}" alt=""></div><div class="popup__b"><span class="mono kick kick--ink">${esc(L(S(), 'name'))}</span>
       <h2 class="disp h3" style="font-size:clamp(1.6rem,3vw,2.2rem)">${esc(L(p, 'title'))}</h2><p class="muted" style="margin:0">${esc(L(p, 'text'))}</p>
       <button class="code" data-copy="${esc(p.code)}">${esc(p.code)} ${icon('copy')}</button>
       <button class="btn btn--signal" data-claim="${esc(p.code)}">${t('m.useCode')} ${arr()}</button></div></div>`);
@@ -1012,6 +1106,9 @@
         if (N.cart.add(pid, vid, size, 1)) { try { window.NZ_TRACK && NZ_TRACK.event('add_to_cart', { id: pid }); } catch (x) { } toast(N.isPre(p) ? t('p.reserved') : t('p.added'), { action: t('nav.bag'), onAction: () => openDrawer('bag') }); }
         return;
       }
+      if (a.dataset.gal != null) { galShow(+a.dataset.gal); return; }
+      if (a.dataset.sg) { sgState.g = a.dataset.sg; const box = $('#sg'); if (box) box.innerHTML = sgInner(); return; }
+      if (a.dataset.sgu) { sgState.unit = a.dataset.sgu; const box = $('#sg'); if (box) box.innerHTML = sgInner(); return; }
       if (a.dataset.size) { pdp.size = a.dataset.size; $$('#sizes .sz').forEach(b => b.classList.toggle('on', b === a)); return; }
       if (a.dataset.buy) { buy(a.dataset.buy); return; }
       if (a.dataset.dialc) { dialSelect(dialState.i, a.dataset.dialc); return; }
@@ -1057,10 +1154,11 @@
   /* ─────────────────────────── boot ─────────────────────────── */
   function boot2() { applyLang(); applyTheme(); applyMode(); shell(); render(true); }
   async function boot() {
-    await N.load();
+    await N.load({ abs: true });
     N.initLang();
     boot2(); bind();
-    const ld = $('#loader'); if (ld) { ld.classList.add('off'); setTimeout(() => ld.remove(), 600); }
+    const ld = $('#loader');
+    if (ld) setTimeout(() => { ld.classList.add('off'); setTimeout(() => ld.remove(), 900); }, Math.max(0, 1100 - performance.now()));
     const p = S().popup || {};
     if (p.on) setTimeout(() => { if (!$('#modal').classList.contains('on') && !/^\/(checkout|order)/.test(route.path)) popup(); }, (+p.delay || 12) * 1000);
     else if (N.read(N.LS.popup, {}).seen) { /* nothing */ }

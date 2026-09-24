@@ -73,7 +73,7 @@ window.NZS = (function () {
   }
 
   /* ─────────────── visits ─────────────── */
-  function realSessions() { const d = read(K.track, null); return d && d.sessions ? d.sessions : []; }
+  function realSessions() { if (N.remoteSessions) return N.remoteSessions; const d = read(K.track, null); return d && d.sessions ? d.sessions : []; }
   /* one row per day: { d, s, dev:{}, src:{}, v, c, k, b, land:{} } */
   function trafficDays(p) {
     const byDay = {};

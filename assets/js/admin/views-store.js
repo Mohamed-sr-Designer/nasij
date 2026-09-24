@@ -12,7 +12,7 @@
 
   /* link targets for menus & buttons */
   function targets() {
-    const t = [['#/', A('الرئيسية', 'Home')], ['#/shop', A('كل المنتجات', 'Shop all')], ['#/drops', A('الدروب', 'Drop page')], ['#/custom', A('التخصيص', 'Custom page')], ['#/faq', A('الأسئلة', 'FAQ')], ['#/size-guide', A('دليل المقاسات', 'Size guide')], ['#/journal', A('المجلة', 'Journal')], ['#/account', A('طلباتي', 'Orders')]];
+    const t = [['#/', A('الرئيسية', 'Home')], ['#/shop', A('كل المنتجات', 'Shop all')], ['#/drops', A('الدروب', 'Drop page')], ['#/custom', A('التخصيص', 'Custom page')], ['#/faq', A('الأسئلة', 'FAQ')], ['#/size-guide', A('دليل المقاسات', 'Size guide')], ['#/journal', A('المجلة', 'Journal')], ['#/saved', A('المحفوظ', 'Saved')]];
     D().collections.forEach(c => t.push(['#/collections/' + c.handle, A('كولكشن: ', 'Collection: ') + T(c, 'title')]));
     (D().pages.policies || []).forEach(p => t.push(['#/policies/' + p.id, A('صفحة: ', 'Page: ') + T(p, 'title')]));
     return t;
@@ -63,17 +63,58 @@
   });
 
   /* ═════════════════════════ THEME ═════════════════════════ */
+  /* accent presets — soft gradients that keep dark text readable */
+  const PRESETS = [
+    ['aurora', 'Aurora', ['#C4B5FD', '#F9A8D4', '#FDD7AA']],
+    ['dusk', 'Dusk', ['#FDA4AF', '#F0ABFC', '#A5B4FC']],
+    ['lagoon', 'Lagoon', ['#99F6E4', '#A5F3FC', '#C4B5FD']],
+    ['sunset', 'Sunset', ['#FDE68A', '#FDBA74', '#F9A8D4']],
+    ['ice', 'Ice', ['#E0F2FE', '#BAE6FD', '#C7D2FE']],
+    ['mint', 'Mint', ['#BBF7D0', '#D9F99D', '#FEF08A']],
+    ['peach', 'Peach', ['#FED7AA', '#FECACA', '#FBCFE8']],
+    ['lime', A('ليموني (لون واحد)', 'Acid lime (solid)'), ['#D4FF3F']]
+  ];
+  const gradOf = th => { const g = th.gradient === false ? [th.accent] : [th.g1, th.g2, th.g3].filter(Boolean); return g.length > 1 ? 'linear-gradient(' + (+th.angle || 105) + 'deg, ' + g.join(', ') + ')' : (g[0] || th.accent || '#C4B5FD'); };
+  function colourCard() {
+    const th = D().theme || {}, grad = gradOf(th), on = th.gradient !== false;
+    return card(A('الألوان', 'Colours'), `
+      <p class="muted small" style="margin:-4px 0 12px">${A('اختار تدرّج جاهز أو اعمل ألوانك. التدرّج بيظهر في الأزرار، الشريط المتحرك، الشارات، وقسم التخصيص.', 'Pick a ready-made gradient or build your own. It paints buttons, the marquee, badges and the custom band.')}</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px">${PRESETS.map(([k, name, st]) => `<button type="button" data-preset="${k}" style="display:grid;gap:6px;padding:8px;border-radius:12px;border:${th.preset === k ? '2px solid #111' : '1px solid var(--line)'};background:#fff;text-align:start;cursor:pointer">
+        <span style="height:44px;border-radius:8px;background:${st.length > 1 ? 'linear-gradient(105deg,' + st.join(',') + ')' : st[0]}"></span><b class="small">${esc(name)}</b></button>`).join('')}</div>
+      <hr style="border:0;border-top:1px solid var(--line);margin:16px 0">
+      <div style="display:grid;gap:12px">
+        ${F.bool('theme.gradient', A('استخدم تدرّج (بدل لون واحد)', 'Use a gradient (instead of one colour)'), { rr: 1 })}
+        ${on ? `<div class="fgrid g3">${F.color('theme.g1', A('اللون ١', 'Stop 1'))}${F.color('theme.g2', A('اللون ٢', 'Stop 2'))}${F.color('theme.g3', A('اللون ٣', 'Stop 3'))}</div>
+          ${F.num('theme.angle', A('زاوية التدرّج (درجة)', 'Gradient angle (degrees)'), { min: 0 })}` : ''}
+        <div class="fgrid g3">${F.color('theme.accent', on ? A('لون النقط والخطوط', 'Dots & outlines colour') : A('لون الإبراز', 'Accent colour'))}${F.color('theme.night', A('الخلفية الغامقة', 'Dark surface'))}${F.color('theme.paper', A('الخلفية الفاتحة', 'Light surface'))}</div>
+      </div>
+      <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;border-radius:12px;overflow:hidden;border:1px solid var(--line)">
+        <div style="padding:20px;background:${esc(th.night || '#08080B')};display:grid;gap:12px;justify-items:start"><span style="color:#F3F0EA;font-weight:800;letter-spacing:.04em">NASIJ</span><span style="background:${esc(grad)};color:#0B0B0D;padding:10px 16px;border-radius:4px;font-weight:700;font-size:.8rem">${A('احجز برجك', 'RESERVE YOUR SIGN')}</span></div>
+        <div style="padding:20px;background:${esc(grad)};display:grid;gap:8px;align-content:center"><b style="color:#0B0B0D">${A('قسم التخصيص', 'Custom band')}</b><span style="color:rgba(11,11,13,.75);font-size:.85rem">${A('ده شكل التدرّج على الخلفية', 'How the gradient looks as a background')}</span></div>
+      </div>`);
+  }
+  function bindPresets() {
+    Z.$$('[data-preset]').forEach(b => b.addEventListener('click', () => {
+      const p = PRESETS.find(x => x[0] === b.dataset.preset); if (!p) return;
+      const th = D().theme || (D().theme = {});
+      th.preset = p[0];
+      if (p[2].length > 1) { th.gradient = true; th.g1 = p[2][0]; th.g2 = p[2][1]; th.g3 = p[2][2]; th.accent = p[2][0]; }
+      else { th.gradient = false; th.accent = p[2][0]; }
+      Z.save(); Z.rerender(); Z.toast(A('اتطبّق — اضغط معاينة', 'Applied — hit Preview'));
+    }));
+  }
+
   Z.view('theme', {
     perm: 'content', title: () => A('الثيم والهوية', 'Theme'),
     render() {
       return `<div class="page page--narrow">${ph(A('الثيم والهوية', 'Theme'), { act: `<button class="btn" data-preview>${icon('eye')}${A('معاينة', 'Preview')}</button>` })}
-        ${card(A('الألوان', 'Colours'), `<div class="fgrid g3">${F.color('theme.accent', A('لون الإبراز (الأزرار والشريط)', 'Accent (buttons, marquee)'))}${F.color('theme.night', A('الخلفية الغامقة', 'Dark surface'))}${F.color('theme.paper', A('الخلفية الفاتحة', 'Light surface'))}</div>
-          <div id="swPrev" style="margin-top:14px;display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--line)"><div style="flex:1;padding:18px;background:${esc(D().theme.night)};color:#F3F0EA;font-weight:700">NASIJ <span style="background:${esc(D().theme.accent)};color:#111;padding:4px 10px;border-radius:4px;margin-inline-start:8px">${A('احجز برجك', 'Reserve')}</span></div><div style="flex:1;padding:18px;background:${esc(D().theme.paper)};color:#111;font-weight:700">${A('ورق فاتح', 'Bone paper')}</div></div>`)}
+        ${colourCard()}
         ${card(A('الشكل', 'Style'), `<div style="display:grid;gap:12px">${F.num('theme.radius', A('استدارة الحواف (px)', 'Corner radius (px)'), { min: 0 })}${F.bool('theme.grain', A('ملمس الحبيبات (grain) على الأقسام الغامقة', 'Film grain on dark sections'))}
           <div class="fgrid">${F.select('settings.defaultMode', A('المظهر الافتراضي', 'Default mode'), [['light', A('فاتح + غامق (مختلط)', 'Light (mixed)')], ['dark', A('غامق بالكامل', 'All dark')]])}${F.select('settings.defaultLang', A('اللغة الافتراضية', 'Default language'), [['en', 'English'], ['ar', 'العربية']])}</div></div>`)}
         ${card(A('اللوجو', 'Logo'), `<div class="fgrid">${F.img('theme.logo', A('اللوجو الغامق (على خلفية فاتحة)', 'Dark logo (on light)'), { max: 600 })}${F.img('theme.logoLight', A('اللوجو الفاتح (على خلفية غامقة)', 'Light logo (on dark)'), { max: 600 })}</div><p class="muted small" style="margin:10px 0 0">${A('لو فاضي بيستخدم اللوجو الأصلي.', 'Empty = the original logo.')}</p>`)}
         ${card(A('شريط الإعلانات المتحرك', 'Announcement marquee'), listEd('settings.announcement', b => F.pair(b, A('رسالة', 'Message')), { en: '', ar: '' }))}</div>`;
-    }
+    },
+    mount() { bindPresets(); }
   });
 
   /* ═════════════════════════ NAVIGATION ═════════════════════════ */
@@ -206,6 +247,7 @@
   Z.view('staff', {
     perm: 'owner', title: () => A('الموظفين', 'Staff'),
     render() {
+      if (Z.wp) return `<div class="page page--narrow">${ph(A('الموظفين والصلاحيات', 'Staff & permissions'))}${card('', `<p style="margin:0">${A('على ووردبريس، الدخول للوحة التحكم بيتم بحسابات ووردبريس نفسها: أي مستخدم بدور «مدير» أو «محرر» يقدر يفتحها.', 'On WordPress the dashboard uses WordPress accounts: any Administrator or Editor can open it.')}</p><p style="margin:12px 0 0"><a class="btn" href="${esc(Z.wp.wpadmin)}users.php" target="_blank" rel="noopener">${A('إدارة المستخدمين في ووردبريس', 'Manage WordPress users')}</a></p>`)}</div>`;
       const us = Z.users(), P = Z.PERMS();
       return `<div class="page page--narrow">${ph(A('الموظفين والصلاحيات', 'Staff & permissions'), { act: `<button class="btn btn--pri" data-uadd>${icon('plus')}${A('موظف جديد', 'Add staff')}</button>` })}
         ${us.map((u, i) => card(`${esc(u.name || u.email)} <span class="bdg ${u.role === 'owner' ? 'bdg--brand' : ''} bdg--plain">${u.role === 'owner' ? A('المالك', 'Owner') : A('موظف', 'Staff')}</span>`, `<div class="row" style="margin-bottom:10px"><span class="mono small" dir="ltr">${esc(u.email)}</span></div>
@@ -240,7 +282,13 @@
   Z.view('publish', {
     perm: 'settings', title: () => A('النشر', 'Publish'),
     render() {
-      const g = Z.gh(), tk = Z.token(), dirty = Z.dirty();
+      const dirty = Z.dirty();
+      if (Z.wp) return `<div class="page page--narrow">${ph(A('نشر التعديلات', 'Publish changes'), { badge: dirty ? `<span class="bdg bdg--warn">${A('فيه تعديلات', 'Changes pending')}</span>` : `<span class="bdg bdg--ok">${A('مطابق للمنشور', 'Up to date')}</span>` })}
+        ${card(A('النشر على ووردبريس', 'Publish to WordPress'), `<div style="display:grid;gap:12px"><p class="small" style="margin:0">${A('التعديلات بتتحفظ مسودة في المتصفح ده. «نشر» بيرفع الصور الجديدة لمكتبة الوسائط في ووردبريس ويحدّث المتجر لكل الزوار فوراً.', 'Edits are kept as a draft in this browser. “Publish” uploads new images to the WordPress Media Library and updates the store for every visitor instantly.')}</p>
+          <div class="row"><button class="btn btn--brand" id="pubBtn" ${dirty ? '' : 'disabled'}>${icon('upload')}${A('نشر دلوقتي', 'Publish now')}</button><button class="btn" data-preview>${icon('eye')}${A('معاينة', 'Preview')}</button><button class="btn" id="dlBtn">${icon('down2')}${A('نسخة احتياطية (JSON)', 'Backup (JSON)')}</button>${dirty ? `<button class="btn btn--danger btn--ghost" data-discard>${A('تجاهل التعديلات', 'Discard changes')}</button>` : ''}</div>
+          <div id="pubLog" class="small muted"></div></div>`)}
+        <div class="banner">${icon('orders')}<div class="grow"><b>${A('الطلبات والزيارات متسجلة على الموقع', 'Orders and visits are saved on the site')}</b><span class="small">${A('كل طلب وطلب تخصيص وزيارة بيتحفظ في قاعدة بيانات ووردبريس، وبيوصلك إيميل بكل طلب جديد على إيميل الأدمن.', 'Every order, custom request and visit is stored in the WordPress database, and each new order is emailed to the site admin address.')}</span></div></div></div>`;
+      const g = Z.gh(), tk = Z.token();
       return `<div class="page page--narrow">${ph(A('نشر التعديلات', 'Publish changes'), { badge: dirty ? `<span class="bdg bdg--warn">${A('فيه تعديلات', 'Changes pending')}</span>` : `<span class="bdg bdg--ok">${A('مطابق للمنشور', 'Up to date')}</span>` })}
         ${card(A('إزاي النشر بيشتغل', 'How publishing works'), `<ol style="margin:0;padding-inline-start:18px;display:grid;gap:6px" class="small"><li>${A('كل تعديل بتعمله بيتحفظ «مسودة» في المتصفح ده.', 'Every edit is saved as a draft in this browser.')}</li><li>${A('«معاينة» بتفتح الموقع الحقيقي بالمسودة (ليك إنت بس).', '“Preview” opens the real store with your draft (only you see it).')}</li><li>${A('«نشر» بيرفع الصور الجديدة وملف المحتوى على GitHub، والموقع بيتحدّث لكل الناس خلال دقيقة أو اتنين.', '“Publish” uploads new images and the content file to GitHub; the store updates for everyone within a minute or two.')}</li></ol>`)}
         ${card(A('النشر على GitHub', 'Publish to GitHub'), `<div style="display:grid;gap:12px"><div class="fgrid g3">${F.text('settings.publish.owner', A('الحساب', 'Owner'), { dir: 'ltr' })}${F.text('settings.publish.repo', A('المستودع', 'Repository'), { dir: 'ltr' })}${F.text('settings.publish.branch', A('الفرع', 'Branch'), { dir: 'ltr' })}</div>
@@ -252,6 +300,15 @@
         <div class="banner banner--warn">${icon('lock')}<div class="grow"><b>${A('حدود النسخة الحالية (موقع ثابت على GitHub Pages)', 'Limits of this version (static site on GitHub Pages)')}</b><span class="small">${A('الطلبات وطلبات التخصيص والزيارات بتتحفظ على جهاز العميل نفسه، وكل طلب بيتبعتلك على واتساب برقم الطلب. عشان تشوف كل الطلبات من كل الأجهزة هنا في اللوحة، محتاجين نربط قاعدة بيانات (Firebase أو Supabase) — الكود جاهز يتربط من مكان واحد.', 'Orders, custom requests and visits are stored on the customer’s own device, and every order reaches you on WhatsApp with its number. To see all orders from all devices here, connect a database (Firebase or Supabase) — the code is ready to plug in at one place.')}</span></div></div></div>`;
     },
     mount() {
+      if (Z.wp) {
+        Z.$('#dlBtn').addEventListener('click', () => Z.download());
+        const pw = Z.$('#pubBtn'); if (pw) pw.addEventListener('click', async () => {
+          const log = Z.$('#pubLog'); pw.disabled = true;
+          try { await Z.publish(m => { log.textContent = m; }); log.innerHTML = `<b style="color:var(--ok)">✓ ${A('اتنشر! المتجر اتحدّث.', 'Published! The store is updated.')}</b>`; Z.toast(A('اتنشر', 'Published')); setTimeout(() => Z.rerender(), 1200); }
+          catch (e) { log.innerHTML = `<b style="color:var(--bad)">${esc(e.message)}</b>`; pw.disabled = false; }
+        });
+        return;
+      }
       const tok = Z.$('#ghTok'), rem = Z.$('#ghRem');
       const saveTok = () => { const v = tok.value.trim(); if (!v || /^•+$/.test(v)) return; sessionStorage.setItem(Z.LS.gh, v); if (rem.checked) localStorage.setItem(Z.LS.gh, v); else localStorage.removeItem(Z.LS.gh); };
       tok.addEventListener('change', saveTok);

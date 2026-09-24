@@ -1,0 +1,14 @@
+/*
+Theme Name: NASIJ Store
+Theme URI: https://mohamed-sr-designer.github.io/nasij/
+Author: NASIJ
+Description: The NASIJ streetwear store (zodiac pre-order drop, sweatpants, custom requests) with its Shopify-style dashboard. Content, orders, custom requests and visits are stored in this WordPress site. Open the dashboard from the "NASIJ Store" item in wp-admin, or at /nasij-admin/.
+Version: 2.1.0
+Requires at least: 6.0
+Tested up to: 6.8
+Requires PHP: 7.4
+License: Proprietary
+Text Domain: nasij
+*/
+
+/* The storefront styles live in assets/css/store.css and the dashboard styles in assets/css/admin.css. */

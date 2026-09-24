@@ -290,7 +290,7 @@
     Z.$$('[data-idel]').forEach(b => b.addEventListener('click', () => { const [vi, k] = b.dataset.idel.split('|').map(Number); p.variants[vi].images.splice(k, 1); Z.save(); Z.rerender(); }));
     Z.$$('[data-imove]').forEach(b => b.addEventListener('click', () => { const [vi, k, d] = b.dataset.imove.split('|').map(Number); const a = p.variants[vi].images; [a[k], a[k + d]] = [a[k + d], a[k]]; Z.save(); Z.rerender(); }));
     Z.$$('[data-vpick]').forEach(b => b.addEventListener('click', () => { const vi = +b.dataset.vpick; pick(url => { p.variants[vi].images.push(url); Z.save(); Z.rerender(); }); }));
-    Z.$('[data-view]').addEventListener('click', () => { N.write(N.LS.draft, Z.draft); localStorage.setItem(N.LS.preview, '1'); window.open('index.html#/products/' + p.handle, '_blank'); });
+    Z.$('[data-view]').addEventListener('click', () => { N.write(N.LS.draft, Z.draft); localStorage.setItem(N.LS.preview, '1'); window.open(Z.storeUrl('#/products/' + p.handle), '_blank'); });
     Z.$('[data-dup]').addEventListener('click', () => { const cp = JSON.parse(JSON.stringify(p)); const nid = p.id + '-copy-' + Date.now().toString(36).slice(-3); cp.id = nid; cp.handle = p.handle + '-copy'; cp.status = 'draft'; cp.title_en += ' (copy)'; cp.title_ar += ' (نسخة)'; cp.variants.forEach(v => { v.id = nid + '-' + v.color; }); ps.splice(i + 1, 0, cp); Z.save(); location.hash = '#products/' + nid; });
     Z.$('[data-pdel]').addEventListener('click', () => Z.confirmBox(A('حذف المنتج؟ (ممكن تحوّله لمسودة بدل الحذف)', 'Delete this product? (You can set it to draft instead)'), A('حذف', 'Delete'), () => { ps.splice(i, 1); Z.save(); location.hash = '#products'; }, true));
   }
