@@ -14,7 +14,8 @@ const { execFileSync } = require('child_process');
 const ROOT = path.resolve(__dirname, '..');
 const OUT_BASE = path.join(ROOT, 'dist', 'wordpress');
 const OUT = path.join(OUT_BASE, 'nasij');
-const ZIP = path.join(ROOT, 'dist', 'nasij-wordpress-theme.zip');
+const LITE = process.argv.includes('--lite'); /* code only, for quick tests */
+const ZIP = path.join(ROOT, 'dist', LITE ? 'nasij-wordpress-theme-lite.zip' : 'nasij-wordpress-theme.zip');
 let sharp = null;
 try { sharp = require(path.resolve(ROOT, '..', 'the-9-menu', 'node_modules', 'sharp')); } catch (e) { try { sharp = require('sharp'); } catch (e2) { /* optional */ } }
 
@@ -43,6 +44,7 @@ async function main() {
   scan.forEach(f => { const txt = fs.readFileSync(path.join(ROOT, f), 'utf8'); (txt.match(/images\/[A-Za-z0-9_\/.-]+\.(?:jpe?g|png|webp|gif|svg)/g) || []).forEach(u => used.add(u)); });
   let bytes = 0, n = 0;
   for (const u of used) {
+    if (LITE && !/logo/.test(u)) continue;
     const src = path.join(ROOT, u), dst = path.join(OUT, u);
     if (!fs.existsSync(src)) continue;
     mk(path.dirname(dst));
