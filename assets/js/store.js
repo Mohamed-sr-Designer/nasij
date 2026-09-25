@@ -20,6 +20,9 @@
     moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
     home: '<path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/>', grid: '<rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/>',
     star: '<path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>',
+    cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M12 14h2M16 14h.5M8 17.5h2M12 17.5h2"/>',
+    link: '<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/>',
+    panel: '<rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M9 4v16M13 9h4M13 13h4"/>',
     spark: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/>',
     gift: '<rect x="3.5" y="8" width="17" height="4"/><path d="M5 12v8h14v-8M12 8v12M12 8S10.5 3.5 8 4.5 9 8 12 8zM12 8s1.5-4.5 4-3.5S15 8 12 8z"/>',
     wa: '<path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"/><path d="M9 9.5c.3 2.4 2.2 4.4 4.6 4.9l1.2-1.2 2 .9-.4 1.6c-3.8.3-8.4-3.9-8.1-7.8l1.6-.4.9 2z"/>',
@@ -45,6 +48,10 @@
       <img class="logo-l" src="${esc(N.abs((C().theme || {}).logo || 'images/logo-en.png'))}" alt="${esc(L(S(), 'name'))}" width="120" height="26">
       <img class="logo-d" src="${esc(N.abs((C().theme || {}).logoLight || 'images/logo-en-white.png'))}" alt="" width="120" height="26" aria-hidden="true"></a>`;
 
+  function copyText(txt) {
+    try { if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(txt); } catch (e) { }
+    const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;opacity:0;top:0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) { } ta.remove();
+  }
   function toast(msg, opts) {
     opts = opts || {};
     const box = $('#toasts'); if (!box) return;
@@ -224,7 +231,7 @@
         </div>
       </div>
       <div class="wrap ftr__bot"><span class="mono">${t('m.rights', { y: new Date().getFullYear() })}</span>
-        <span style="display:flex;gap:8px"><button class="lang-pill" data-lang style="color:#F3F0EA;border-color:rgba(243,240,234,.3)">${N.isAr() ? 'English' : 'العربية'}</button><button class="lang-pill" data-mode style="color:#F3F0EA;border-color:rgba(243,240,234,.3)">${mode() === 'dark' ? '☀' : '☾'}</button></span></div>`;
+        <span style="display:flex;gap:8px;flex-wrap:wrap"><a class="lang-pill ftr__dash" href="${esc(N.wp ? (N.wp.admin || N.wp.home + '?nasij_admin=1') : 'admin.html')}">${icon('panel')}${t('m.dashboard')}</a><button class="lang-pill" data-lang style="color:#F3F0EA;border-color:rgba(243,240,234,.3)">${N.isAr() ? 'English' : 'العربية'}</button><button class="lang-pill" data-mode style="color:#F3F0EA;border-color:rgba(243,240,234,.3)">${mode() === 'dark' ? '☀' : '☾'}</button></span></div>`;
   }
   function fmtPhone(p) { p = String(p || '').replace(/\D/g, ''); if (p.indexOf('20') === 0) p = '0' + p.slice(2); return p.replace(/^(\d{4})(\d{3})(\d{4})$/, '$1 $2 $3'); }
 
@@ -386,7 +393,7 @@
               <div class="swatches" id="dialSw"></div>
               <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn btn--signal" id="dialGo" href="#/drops">${arr()}</a><span class="mono muted" style="align-self:center">${t('d.spin')}</span></div>
               <hr class="hair">
-              <form class="bday" id="bday"><label class="fld"><span>${t('d.birthday')}</span><input class="inp" type="date" name="d" required></label><button class="btn btn--line" style="align-self:end">${t('d.find')}</button></form>
+              <form class="bday" id="bday" novalidate><label class="fld"><span>${t('d.birthday')}</span><span class="datef"><input class="inp" name="d" inputmode="numeric" autocomplete="bday" placeholder="DD/MM/YYYY" maxlength="10" dir="ltr" aria-describedby="bdayErr"><button type="button" class="datef__btn" data-datepick aria-label="${t('d.pickDate')}" title="${t('d.pickDate')}">${icon('cal')}</button><input type="date" class="datef__native" tabindex="-1" aria-hidden="true"></span></label><button class="btn btn--line" style="align-self:end">${t('d.find')}</button><span class="bday__err mono" id="bdayErr" hidden></span></form>
             </div>
           </div>
         </div></section>`;
@@ -543,10 +550,19 @@
       drag = null;
     };
     box.addEventListener('pointerup', end); box.addEventListener('pointercancel', end);
-    $('#bday').addEventListener('submit', e => {
-      e.preventDefault(); const v = e.target.d.value; if (!v) return;
-      const [, m, d] = v.split('-').map(Number); const s = N.signForDate(m, d);
-      dialSelect((C().signs || []).indexOf(s)); $('#dialBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const bd = $('#bday'), bi = bd.elements.d, nat = $('.datef__native', bd), berr = $('#bdayErr');
+    bi.addEventListener('input', () => {
+      let x = bi.value.replace(/\D/g, '').slice(0, 8);
+      if (x.length > 4) x = x.slice(0, 2) + '/' + x.slice(2, 4) + '/' + x.slice(4); else if (x.length > 2) x = x.slice(0, 2) + '/' + x.slice(2);
+      bi.value = x; berr.hidden = true;
+    });
+    $('[data-datepick]', bd).addEventListener('click', () => { try { nat.showPicker(); } catch (x) { nat.focus(); nat.click(); } });
+    nat.addEventListener('change', () => { if (!nat.value) return; const [y, m, d] = nat.value.split('-'); bi.value = d + '/' + m + '/' + y; bd.requestSubmit(); });
+    bd.addEventListener('submit', e => {
+      e.preventDefault();
+      const m = bi.value.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/), dd = m ? +m[1] : 0, mm = m ? +m[2] : 0;
+      if (!m || mm < 1 || mm > 12 || dd < 1 || dd > new Date(2024, mm, 0).getDate()) { berr.textContent = t('d.dateBad'); berr.hidden = false; return; }
+      dialSelect((C().signs || []).indexOf(N.signForDate(mm, dd))); $('#dialBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
   }
 
@@ -620,8 +636,10 @@
         </div>
         <div class="buy">
           <div style="display:grid;gap:12px">
-            <div style="display:flex;gap:8px;flex-wrap:wrap">${tagsHTML(p, v)}${sg ? `<span class="tag tag--line">${glyph(sg.glyph)} ${esc(N.isAr() ? sg.dates_ar : sg.dates_en)}</span>` : ''}</div>
+            <div class="buy__top"><div style="display:flex;gap:8px;flex-wrap:wrap">${tagsHTML(p, v)}${sg ? `<span class="tag tag--line">${glyph(sg.glyph)} ${esc(N.isAr() ? sg.dates_ar : sg.dates_en)}</span>` : ''}</div>
+              <div class="share"><button class="share__b" data-copylink title="${t('p.copyLink')}">${icon('link')}<span>${t('p.copyLink')}</span></button><a class="share__b" href="https://wa.me/?text=${encodeURIComponent(N.title(p) + ' — ' + location.href)}" target="_blank" rel="noopener" title="${t('p.shareWa')}" aria-label="${t('p.shareWa')}">${icon('wa')}</a></div></div>
             <h1 class="disp buy__t">${esc(N.title(p))}</h1>
+            ${ratingLine(p)}
             ${L(p, 'sub') ? `<p class="muted" style="margin:0">${esc(L(p, 'sub'))}</p>` : ''}
             <div class="buy__p num">${pre ? `<span>${money(p.price)}</span><span class="dep">${t('d.deposit', { pct: d.depositPct })} · ${money(N.deposit(p.price))}</span>` : `${p.compareAt && +p.compareAt > +p.price ? `<s class="muted" style="font-weight:400">${money(p.compareAt)}</s>` : ''}<span>${money(p.price)}</span>`}</div>
             ${pre ? `<p class="muted" style="margin:0;font-size:.9rem">${t('p.fullPrice', { price: money(p.price), rest: money(p.price - N.deposit(p.price)) })}</p>` : ''}
@@ -648,11 +666,63 @@
           </div>
         </div>
       </div>
+      ${chartOf(p) !== 'none' ? `<section class="pdp-sec" id="sizeFit">${sh(t('p.sizeFit'), LL({ en: 'Find your fit.', ar: 'اعرف مقاسك.' }), '', `<a class="btn btn--line btn--sm" href="#/size-guide">${t('p.fullGuide')} ${arr()}</a>`)}<div class="sg" id="pdpSg">${pdpSizeInner()}</div></section>` : ''}
+      ${reviewsHTML(p)}
       ${others.length ? `<div style="padding-bottom:80px">${sh(p.sign ? t('p.other') : t('p.also'), '', '')}<div class="rail">${cards(others.slice(0, 12), { color: p.sign ? v.color : '' }).join('')}</div></div>` : ''}
       </div>
-      <div class="sticky-buy tone-light" id="stickyBuy"><div style="min-width:0;flex:1"><b style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(N.title(p))}</b><span class="mono muted num">${pre ? money(N.deposit(p.price)) : money(p.price)}</span></div>
-        ${pre ? `<button class="btn btn--signal" data-buy="reserve">${t('c.preorder')}</button>` : `<button class="btn" data-buy="add">${t('p.addToBag')}</button>`}</div>
+      <div class="sticky-buy tone-light" id="stickyBuy" aria-hidden="true"><div class="sticky-buy__in">
+        <img class="sticky-buy__img" src="${esc(imgs[0])}" alt="" width="90" height="120">
+        <div class="sticky-buy__t"><b>${esc(N.title(p))}</b><span class="mono muted num">${esc(N.colourName(v))} · ${pre ? t('d.deposit', { pct: d.depositPct }) + ' ' + money(N.deposit(p.price)) : money(p.price)}</span></div>
+        ${N.soldOut(p, v) && !pre ? '' : `<div class="sticky-buy__sz">${(p.sizes || []).map(z => `<button class="sz sz--sm${pdp.size === z ? ' on' : ''}" data-size="${esc(z)}"${!pre && N.stockOf(v, z) <= 0 ? ' disabled' : ''}>${esc(z)}</button>`).join('')}</div>`}
+        ${N.soldOut(p, v) && !pre ? `<button class="btn" disabled>${t('c.soldOut')}</button>` : pre ? `<button class="btn btn--signal" data-buy="reserve">${t('p.reserve', { amount: money(N.deposit(p.price)) })} ${arr()}</button>` : `<button class="btn btn--signal" data-buy="add">${t('p.addToBag')} ${arr()}</button>`}
+      </div></div>
       </section>`;
+  }
+  function starsHTML(v) {
+    const f = Math.round((+v || 0) * 2) / 2; let h = '';
+    for (let i = 1; i <= 5; i++) h += `<i class="${f >= i ? 'f' : f >= i - .5 ? 'h' : ''}"></i>`;
+    return `<span class="rstars" role="img" aria-label="${(+v || 0).toFixed(1)} / 5">${h}</span>`;
+  }
+  function ratingLine(p) {
+    const st = N.reviews.stats(N.reviews.forProduct(p));
+    if (!st.n) return `<a class="rate-line mono" href="#reviews" data-scroll="#reviews">${starsHTML(0)}<span>${t('rv.first')}</span></a>`;
+    return `<a class="rate-line" href="#reviews" data-scroll="#reviews">${starsHTML(st.avg)}<b class="num">${st.avg.toFixed(1)}</b><span class="muted">(${st.n === 1 ? t('rv.one') : t('rv.count', { n: st.n })})</span></a>`;
+  }
+  function reviewsHTML(p) {
+    const list = N.reviews.forProduct(p), st = N.reviews.stats(list), col = N.collection(p.collection);
+    const pooled = list.some(r => r.pid !== p.id);
+    const item = r => { const q = N.product(r.pid), vv = q && r.color ? q.variants.find(x => x.color === r.color) : null;
+      const what = [q && q.id !== p.id ? N.title(q) : '', vv ? N.colourName(vv) : '', r.size || ''].filter(Boolean).join(' · ');
+      return `<article class="rv-i"><div class="rv-i__h"><span class="rv-i__av" aria-hidden="true">${esc(String(r.name || '?').trim().charAt(0).toUpperCase())}</span>
+        <div style="min-width:0"><b>${esc(r.name || '')}</b>${r.verified ? ` <span class="rv-i__ok">${icon('check')}${t('rv.verified')}</span>` : ''}<div class="muted rv-i__m">${r.date ? esc(N.date(r.date, { day: 'numeric', month: 'short', year: 'numeric' })) : ''}${what ? ' · ' + esc(what) : ''}</div></div>${starsHTML(r.rating)}</div>
+        <p dir="auto">${esc(r.text || '')}</p></article>`; };
+    return `<section class="pdp-sec" id="reviews">${sh(t('rv.title'), st.n ? LL({ en: 'What people say.', ar: 'الناس بتقول إيه.' }) : '', '', `<button class="btn btn--line btn--sm" data-rvopen>${icon('plus')} ${t('rv.write')}</button>`)}
+      <div class="rvs">
+        <div class="rvs__sum">${st.n ? `<div class="rvs__avg"><b class="num">${st.avg.toFixed(1)}</b><div>${starsHTML(st.avg)}<span class="muted mono">${t('rv.of')} · ${st.n === 1 ? t('rv.one') : t('rv.count', { n: st.n })}</span></div></div>
+          <div class="rvs__dist">${[5, 4, 3, 2, 1].map(k => `<div><span class="mono">${k}★</span><i style="--p:${Math.round(st.dist[k - 1] / st.n * 100)}%"></i><span class="mono muted">${st.dist[k - 1]}</span></div>`).join('')}</div>
+          ${pooled && col ? `<p class="muted" style="margin:0;font-size:.85rem">${esc(t('rv.pooled', { col: L(col, 'short') || L(col, 'title') }))}</p>` : ''}`
+          : `<div class="rvs__empty">${starsHTML(0)}<p style="margin:0">${t('rv.none')}</p><button class="btn btn--signal" data-rvopen>${t('rv.first')} ${arr()}</button></div>`}</div>
+        <div class="rvs__list">${list.map((r, i) => `<div class="${i >= 6 ? 'rv-more' : ''}">${item(r)}</div>`).join('')}
+          ${list.length > 6 ? `<button class="btn btn--line btn--sm" data-rvall>${t('c.viewAll')} (${list.length})</button>` : ''}</div>
+      </div>
+      <form class="rvf" id="rvForm" hidden novalidate>
+        <div class="rvf__stars" role="radiogroup" aria-label="${t('rv.rating')}"><span class="mono">${t('rv.rating')}</span>${[1, 2, 3, 4, 5].map(k => `<button type="button" data-rvstar="${k}" aria-label="${k}">${icon('star')}</button>`).join('')}</div>
+        <div class="fgrid">
+          <label class="fld"><span>${t('rv.name')}<em>*</em></span><input class="inp" name="name" autocomplete="given-name" maxlength="40"></label>
+          <label class="fld"><span>${t('rv.size')}</span><select class="inp" name="size"><option value="">—</option>${(p.sizes || []).map(z => `<option>${esc(z)}</option>`).join('')}</select></label>
+          <label class="fld full"><span>${t('rv.text')}<em>*</em></span><textarea class="inp" name="text" rows="4" maxlength="800" dir="auto" placeholder="${t('rv.textPh')}"></textarea></label>
+          <label class="fld full"><span>${t('rv.phone')}</span><input class="inp" name="phone" type="tel" inputmode="tel" dir="ltr" placeholder="01XXXXXXXXX" maxlength="11"></label>
+        </div>
+        <p class="err" id="rvErr" hidden></p>
+        <button class="btn btn--signal" type="submit">${t('rv.send')} ${arr()}</button>
+      </form>
+      <div class="rvf-done" id="rvDone" hidden></div>
+    </section>`;
+  }
+  const chartOf = p => (p && p.sizeChart) || (p && p.collection === 'sweatpants' ? 'pants' : 'hoodie');
+  function pdpSizeInner() {
+    const p = pdp.p; if (!p) return ''; const kind = chartOf(p), g = C().pages.sizeGuide || {};
+    return `<div style="display:flex;justify-content:flex-end">${sgUnits()}</div>${sgCard(kind)}${sgTable(kind, pdp.size)}<p class="mono muted" style="margin:0;font-size:.78rem">${esc(L(g, 'note'))} · ${sgState.unit === 'in' ? 'IN' : 'CM'}</p>`;
   }
   function galLbl(i) { const p = pdp.p; if (!p) return ''; return p.sign ? (i === 0 ? t('c.backSide') : i === 1 ? t('c.front') : '') : ''; }
   function galAlt(i) { const { p, v } = pdp; return N.title(p) + ' — ' + N.colourName(v) + (galLbl(i) ? ' — ' + galLbl(i) : ''); }
@@ -674,9 +744,27 @@
   function mountProduct() {
     const ctas = $('#buyCtas'), sb = $('#stickyBuy');
     if (ctas && sb && 'IntersectionObserver' in window) {
-      const io = new IntersectionObserver(es => es.forEach(e => sb.classList.toggle('on', !e.isIntersecting && e.boundingClientRect.top < 0)));
-      io.observe(ctas); onceTimers.push(() => io.disconnect());
+      const io = new IntersectionObserver(es => es.forEach(e => { const on = !e.isIntersecting && e.boundingClientRect.top < 0; sb.classList.toggle('on', on); sb.setAttribute('aria-hidden', on ? 'false' : 'true'); document.body.classList.toggle('sb-on', on); }));
+      io.observe(ctas); onceTimers.push(() => { io.disconnect(); document.body.classList.remove('sb-on'); });
     }
+    const rf = $('#rvForm');
+    if (rf) {
+      let stars = 0;
+      const paint = k => $$('[data-rvstar]', rf).forEach(b => b.classList.toggle('on', +b.dataset.rvstar <= k));
+      $$('[data-rvstar]', rf).forEach(b => { b.addEventListener('click', () => { stars = +b.dataset.rvstar; paint(stars); }); b.addEventListener('mouseenter', () => paint(+b.dataset.rvstar)); b.addEventListener('mouseleave', () => paint(stars)); });
+      rf.addEventListener('submit', e => {
+        e.preventDefault(); const f = rf.elements, err = $('#rvErr');
+        const name = f.name.value.trim(), text = f.text.value.trim(), phone = f.phone.value.replace(/\s/g, '');
+        const bad = !stars ? t('rv.errRating') : !name ? t('rv.errName') : text.length < 10 ? t('rv.errText') : (phone && !/^01[0125]\d{8}$/.test(phone)) ? t('k.phoneBad') : '';
+        if (bad) { err.textContent = bad; err.hidden = false; return; }
+        const r = N.reviews.submit({ id: 'RV-' + N.uid().slice(0, 7), pid: pdp.p.id, color: pdp.v.color, size: f.size.value, name, rating: stars, text, phone, date: Date.now(), lang: N.lang, status: 'pending' });
+        try { window.NZ_TRACK && NZ_TRACK.event('review', { id: pdp.p.id }); } catch (x) { }
+        rf.hidden = true; const done = $('#rvDone'); done.hidden = false;
+        const msg = (N.isAr() ? 'تقييم ' : 'Review · ') + N.title(pdp.p) + ' — ' + '★'.repeat(r.rating) + '\n' + r.text + '\n— ' + r.name;
+        done.innerHTML = `<div class="done-card" style="padding:26px"><span class="ok">${icon('check')}</span><b>${t('rv.thanks')}</b>${N.wp ? '' : `<a class="btn btn--line btn--sm" href="${N.wa(msg)}" target="_blank" rel="noopener">${icon('wa')} ${t('rv.waToo')}</a>`}</div>`;
+      });
+    }
+    if (route.q.review) setTimeout(() => { const f = $('#rvForm'); if (f) { f.hidden = false; $('#reviews').scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, 400);
     try { window.NZ_TRACK && NZ_TRACK.event('view_item', { id: pdp.p.id }); } catch (e) { }
   }
   function buy(kind) {
@@ -748,8 +836,9 @@
           <p class="err" id="coErr" hidden></p>
           <div class="co__block" style="border:0;padding-top:6px"><button class="btn btn--signal btn--block" type="submit" id="coBtn">${placeLabel(N.cart.totals(co.zone))} ${arr()}</button><p class="muted" style="margin:0;text-align:center;font-size:.86rem">${t('k.secure')}</p></div>
         </form>
-        <aside class="co__side" id="coSide">${coSummary()}</aside>
-      </div></div></section>`;
+        <aside class="co__side"><div id="coSide">${coSummary()}</div><div class="co__go"><button class="btn btn--signal btn--block" type="submit" form="coForm" data-cogo>${placeLabel(N.cart.totals(co.zone))} ${arr()}</button></div></aside>
+      </div></div>
+      <div class="co-bar tone-light" id="coBar">${coBarHTML()}</div></section>`;
   }
   function payHint(k, p) {
     if (k === 'cod') return LL({ en: 'Pay the courier in cash when it arrives.', ar: 'ادفع كاش للمندوب وقت الاستلام.' });
@@ -771,7 +860,17 @@
         ${T.hasPre ? `<div class="sum__r hl"><span>${t('b.dueNow')}</span><b class="num">${money(T.dueNow)}</b></div><div class="sum__r"><span>${t('b.balance')}</span><b class="num">${money(T.balance)}</b></div>` : ''}
       </div>`;
   }
-  function refreshCheckout() { const s = $('#coSide'); if (s) s.innerHTML = coSummary(); const b = $('#coBtn'); if (b) b.innerHTML = `${placeLabel(N.cart.totals(co.zone))} ${arr()}`; }
+  function coBarHTML() { const T = N.cart.totals(co.zone); return `<div style="min-width:0"><span class="mono muted" style="display:block;font-size:.7rem">${T.hasPre ? t('b.dueNow') : t('b.total')}</span><b class="num">${money(T.hasPre ? T.dueNow : T.total)}</b></div><button class="btn btn--signal" type="submit" form="coForm">${T.hasPre ? t('c.preorder') : t('k.place')} ${arr()}</button>`; }
+  function refreshCheckout() {
+    const s = $('#coSide'); if (s) s.innerHTML = coSummary();
+    const lbl = `${placeLabel(N.cart.totals(co.zone))} ${arr()}`;
+    const b = $('#coBtn'); if (b) b.innerHTML = lbl; const g = $('[data-cogo]'); if (g) g.innerHTML = lbl;
+    const bar = $('#coBar'); if (bar) bar.innerHTML = coBarHTML();
+  }
+  function mountCheckout() {
+    const btn = $('#coBtn'), bar = $('#coBar');
+    if (btn && bar && 'IntersectionObserver' in window) { const io = new IntersectionObserver(es => es.forEach(e => bar.classList.toggle('off', e.isIntersecting))); io.observe(btn); onceTimers.push(() => io.disconnect()); }
+  }
   function submitCheckout(form) {
     const f = form.elements, err = $('#coErr');
     const val = n => (f[n] && f[n].value || '').trim();
@@ -947,30 +1046,39 @@
       ${sgMark(98, 392, 190, 392, 'D', 144, 392)}
     </svg>`;
   }
-  function sgInner() {
-    const g = C().pages.sizeGuide || {}, hood = sgState.g === 'hoodie', inch = sgState.unit === 'in';
-    const rows = hood ? (g.rows || []) : (g.pants || []);
-    const cols = hood
-      ? [['chest', 'A', { en: 'Chest', ar: 'الصدر' }, { en: 'Armpit to armpit, laid flat.', ar: 'من تحت الإبط للإبط والقطعة مفرودة.' }],
-         ['length', 'B', { en: 'Length', ar: 'الطول' }, { en: 'Highest point of the shoulder to the hem.', ar: 'من أعلى نقطة في الكتف لآخر القطعة.' }],
-         ['sleeve', 'C', { en: 'Sleeve', ar: 'الكم' }, { en: 'Shoulder seam to the end of the cuff.', ar: 'من خياطة الكتف لآخر الأستك.' }]]
-      : [['waist', 'A', { en: 'Waist', ar: 'الوسط' }, { en: 'Relaxed waistband, edge to edge.', ar: 'الأستك من الطرف للطرف من غير شد.' }],
+  function sgCols(kind) {
+    return kind === 'pants'
+      ? [['waist', 'A', { en: 'Waist', ar: 'الوسط' }, { en: 'Relaxed waistband, edge to edge.', ar: 'الأستك من الطرف للطرف من غير شد.' }],
          ['length', 'B', { en: 'Length', ar: 'الطول' }, { en: 'Waistband to hem, along the side.', ar: 'من الوسط لآخر الرجل من الجنب.' }],
          ['inseam', 'C', { en: 'Inseam', ar: 'الطول الداخلي' }, { en: 'Crotch seam to hem.', ar: 'من الخياطة الداخلية لآخر الرجل.' }],
-         ['hem', 'D', { en: 'Leg opening', ar: 'فتحة الرجل' }, { en: 'Hem width, laid flat.', ar: 'عرض آخر الرجل والقطعة مفرودة.' }]];
+         ['hem', 'D', { en: 'Leg opening', ar: 'فتحة الرجل' }, { en: 'Hem width, laid flat.', ar: 'عرض آخر الرجل والقطعة مفرودة.' }]]
+      : [['chest', 'A', { en: 'Chest', ar: 'الصدر' }, { en: 'Armpit to armpit, laid flat.', ar: 'من تحت الإبط للإبط والقطعة مفرودة.' }],
+         ['length', 'B', { en: 'Length', ar: 'الطول' }, { en: 'Highest point of the shoulder to the hem.', ar: 'من أعلى نقطة في الكتف لآخر القطعة.' }],
+         ['sleeve', 'C', { en: 'Sleeve', ar: 'الكم' }, { en: 'Shoulder seam to the end of the cuff.', ar: 'من خياطة الكتف لآخر الأستك.' }]];
+  }
+  function sgUnits() { const inch = sgState.unit === 'in'; return `<div class="sg__units" role="group" aria-label="units"><button type="button" data-sgu="cm" class="${!inch ? 'on' : ''}">CM</button><button type="button" data-sgu="in" class="${inch ? 'on' : ''}">IN</button></div>`; }
+  function sgCard(kind) {
+    const g = C().pages.sizeGuide || {}, cols = sgCols(kind);
+    return `<div class="sg__card"><div class="sg__art">${kind === 'pants' ? pantsSVG() : hoodieSVG()}</div>
+      <div style="display:grid;gap:20px"><p class="lead" style="margin:0;max-width:none">${esc(L(g, 'text'))}</p>
+        <ul class="sg__legend">${cols.map(c => `<li><b class="k">${c[1]}</b><span><strong>${esc(LL(c[2]))}</strong>${esc(LL(c[3]))}</span></li>`).join('')}</ul></div></div>`;
+  }
+  function sgTable(kind, hl) {
+    const g = C().pages.sizeGuide || {}, rows = kind === 'pants' ? (g.pants || []) : (g.rows || []), cols = sgCols(kind), inch = sgState.unit === 'in';
     const cv = v => { const x = parseFloat(v); if (isNaN(x)) return esc(v || '—'); return inch ? (x / 2.54).toFixed(1) : String(x); };
+    if (!rows.length) return '';
+    return `<div class="sg__tbl"><table><thead><tr><th>${t('c.size')}</th>${cols.map(c => `<th><span class="k">${c[1]}</span>${esc(LL(c[2]))}</th>`).join('')}</tr></thead>
+      <tbody>${rows.map(r => `<tr data-szrow="${esc(r.size)}" class="${hl && hl === r.size ? 'on' : ''}"><td>${esc(r.size)}${hl && hl === r.size ? '' : ''}</td>${cols.map(c => `<td>${cv(r[c[0]])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+  }
+  function sgInner() {
+    const g = C().pages.sizeGuide || {}, hood = sgState.g === 'hoodie', kind = hood ? 'hoodie' : 'pants';
     return `<div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">
         <div class="sg__tabs" role="tablist"><button type="button" role="tab" aria-selected="${hood}" data-sg="hoodie" class="${hood ? 'on' : ''}">${esc(LL({ en: 'Hoodies', ar: 'الهوديز' }))}</button><button type="button" role="tab" aria-selected="${!hood}" data-sg="pants" class="${!hood ? 'on' : ''}">${esc(LL({ en: 'Sweatpants', ar: 'البناطيل' }))}</button></div>
-        <div class="sg__units" role="group" aria-label="units"><button type="button" data-sgu="cm" class="${!inch ? 'on' : ''}">CM</button><button type="button" data-sgu="in" class="${inch ? 'on' : ''}">IN</button></div>
+        ${sgUnits()}
       </div>
-      <div class="sg__card">
-        <div class="sg__art">${hood ? hoodieSVG() : pantsSVG()}</div>
-        <div style="display:grid;gap:20px"><p class="lead" style="margin:0;max-width:none">${esc(L(g, 'text'))}</p>
-          <ul class="sg__legend">${cols.map(c => `<li><b class="k">${c[1]}</b><span><strong>${esc(LL(c[2]))}</strong>${esc(LL(c[3]))}</span></li>`).join('')}</ul></div>
-      </div>
-      ${rows.length ? `<div class="sg__tbl"><table><thead><tr><th>${t('c.size')}</th>${cols.map(c => `<th><span class="k">${c[1]}</span>${esc(LL(c[2]))}</th>`).join('')}</tr></thead>
-        <tbody>${rows.map(r => `<tr><td>${esc(r.size)}</td>${cols.map(c => `<td>${cv(r[c[0]])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>` : ''}
-      <p class="mono muted" style="margin:0;font-size:.78rem">${esc(L(g, 'note'))} · ${inch ? 'IN' : 'CM'}</p>
+      ${sgCard(kind)}
+      ${sgTable(kind)}
+      <p class="mono muted" style="margin:0;font-size:.78rem">${esc(L(g, 'note'))} · ${sgState.unit === 'in' ? 'IN' : 'CM'}</p>
       <div class="sg__tips">
         <div><b>${esc(LL({ en: 'Relaxed fit', ar: 'قصّة واسعة' }))}</b><span>${esc(LL({ en: 'Your usual size gives the oversized, dropped-shoulder look.', ar: 'مقاسك المعتاد بيدّي الوك الأوفرسايز بالكتف النازل.' }))}</span></div>
         <div><b>${esc(LL({ en: 'Closer fit', ar: 'قصّة أضيق' }))}</b><span>${esc(LL({ en: 'One size down if you like it less boxy.', ar: 'مقاس أصغر لو بتحب القطعة أقل وسع.' }))}</span></div>
@@ -1042,6 +1150,7 @@
     if (name === 'home') mountDial();
     if (name === 'product') mountProduct();
     if (name === 'custom') mountCustom();
+    if (name === 'checkout') mountCheckout();
     reveal(); headerState(); tick(); seo(name);
     try { window.NZ_TRACK && NZ_TRACK.page(r.path, name); } catch (e) { }
     if (name === 'checkout') try { window.NZ_TRACK && NZ_TRACK.event('begin_checkout', {}); } catch (e) { }
@@ -1107,9 +1216,12 @@
         return;
       }
       if (a.dataset.gal != null) { galShow(+a.dataset.gal); return; }
+      if (a.hasAttribute('data-copylink')) { copyText(location.href); toast(t('p.linkCopied')); return; }
+      if (a.hasAttribute('data-rvopen')) { const f = $('#rvForm'); if (f) { f.hidden = false; $('#rvDone').hidden = true; f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { const i = f.querySelector('[name="name"]'); if (i) i.focus({ preventScroll: true }); }, 500); } return; }
+      if (a.hasAttribute('data-rvall')) { $$('.rv-more').forEach(x => x.classList.remove('rv-more')); a.remove(); return; }
       if (a.dataset.sg) { sgState.g = a.dataset.sg; const box = $('#sg'); if (box) box.innerHTML = sgInner(); return; }
-      if (a.dataset.sgu) { sgState.unit = a.dataset.sgu; const box = $('#sg'); if (box) box.innerHTML = sgInner(); return; }
-      if (a.dataset.size) { pdp.size = a.dataset.size; $$('#sizes .sz').forEach(b => b.classList.toggle('on', b === a)); return; }
+      if (a.dataset.sgu) { sgState.unit = a.dataset.sgu; const box = $('#sg'); if (box) box.innerHTML = sgInner(); const pb = $('#pdpSg'); if (pb) pb.innerHTML = pdpSizeInner(); return; }
+      if (a.dataset.size) { pdp.size = a.dataset.size; $$('[data-size]').forEach(b => b.classList.toggle('on', b.dataset.size === pdp.size)); $$('[data-szrow]').forEach(r => r.classList.toggle('on', r.dataset.szrow === pdp.size)); return; }
       if (a.dataset.buy) { buy(a.dataset.buy); return; }
       if (a.dataset.dialc) { dialSelect(dialState.i, a.dataset.dialc); return; }
       if (a.dataset.scroll) { e.preventDefault(); const el = $(a.dataset.scroll); if (el) el.scrollIntoView({ behavior: 'smooth' }); return; }

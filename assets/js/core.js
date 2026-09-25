@@ -13,7 +13,7 @@ window.NZ = (function () {
   const LS = {
     lang: 'nz_lang', mode: 'nz_mode', cart: 'nz_cart', wish: 'nz_wish', orders: 'nz_orders',
     requests: 'nz_requests', promo: 'nz_promo', profile: 'nz_profile', draft: 'nz_cms_draft', preview: 'nz_cms_preview',
-    recent: 'nz_recent', popup: 'nz_popup'
+    recent: 'nz_recent', popup: 'nz_popup', reviews: 'nz_reviews'
   };
   const read = (k, fb) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fb : v; } catch (e) { return fb; } };
   const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
@@ -158,7 +158,21 @@ window.NZ = (function () {
     'm.404': ['Lost in space.', 'تهت في الفضا.'], 'm.404t': ['This page drifted out of orbit.', 'الصفحة دي خرجت من المدار.'],
     'm.searchPh': ['Search hoodies, signs, colours…', 'دوّر على هودي، برج، لون…'], 'm.noResults': ['No results for “{q}”.', 'مفيش نتايج لـ «{q}».'],
     'm.getInTouch': ['Get in touch', 'تواصل معنا'], 'm.deliveryArea': ['Delivery — Cairo & Giza', 'التوصيل — القاهرة والجيزة'],
-    'm.rights': ['© {y} NASIJ. Made in Egypt.', '© {y} نسيج. صناعة مصرية.'], 'm.copied': ['Copied', 'اتنسخ'],
+    'm.rights': ['© {y} NASIJ. Made in Egypt.', '© {y} نسيج. صناعة مصرية.'], 'm.copied': ['Copied', 'اتنسخ'], 'm.dashboard': ['Dashboard', 'لوحة التحكم'],
+    // product page: share, size & fit
+    'p.copyLink': ['Copy link', 'انسخ اللينك'], 'p.shareWa': ['WhatsApp', 'واتساب'], 'p.linkCopied': ['Link copied — share it anywhere', 'اتنسخ اللينك — ابعته لأي حد'],
+    'p.sizeFit': ['Size & fit', 'المقاس والقصّة'], 'p.fullGuide': ['Full size guide', 'دليل المقاسات كامل'], 'p.pickedSize': ['Your size', 'مقاسك'],
+    // reviews
+    'rv.title': ['Reviews', 'التقييمات'], 'rv.none': ['No reviews yet.', 'مفيش تقييمات لسه.'], 'rv.first': ['Write the first review', 'اكتب أول تقييم'],
+    'rv.write': ['Write a review', 'اكتب تقييمك'], 'rv.count': ['{n} reviews', '{n} تقييم'], 'rv.one': ['1 review', 'تقييم واحد'], 'rv.of': ['out of 5', 'من ٥'],
+    'rv.verified': ['Verified buyer', 'مشتري مؤكَّد'], 'rv.pooled': ['Reviews for the whole {col} collection', 'تقييمات كولكشن {col} كله'],
+    'rv.name': ['Your name', 'الاسم'], 'rv.rating': ['Your rating', 'تقييمك'], 'rv.text': ['Your review', 'رأيك'], 'rv.textPh': ['Fit, fabric, delivery — how was it?', 'القصّة، الخامة، التوصيل… كانت عاملة إزاي؟'],
+    'rv.size': ['Size you got', 'المقاس اللي أخدته'], 'rv.phone': ['Phone — not shown, only to match your order', 'الموبايل — مش هيظهر، بس عشان نطابق طلبك'],
+    'rv.send': ['Send review', 'ابعت التقييم'], 'rv.thanks': ['Thank you! Your review shows up after a quick check.', 'شكراً! تقييمك هيظهر بعد مراجعة سريعة.'], 'rv.waToo': ['Send it on WhatsApp too', 'ابعته على واتساب كمان'],
+    'rv.errRating': ['Pick a star rating.', 'اختار عدد النجوم.'], 'rv.errText': ['Write a few words (10+ letters).', 'اكتب كلمتين على الأقل (١٠ حروف).'], 'rv.errName': ['Add your name.', 'اكتب اسمك.'],
+    'rv.bought': ['Bought', 'القطعة'],
+    // birthday field
+    'd.dateBad': ['Type the date as DD/MM/YYYY', 'اكتب التاريخ كده: يوم/شهر/سنة'], 'd.pickDate': ['Pick a date', 'اختار من التقويم'],
     'm.preview': ['Preview mode — you’re seeing unpublished dashboard changes.', 'وضع المعاينة — بتشوف تعديلات من لوحة التحكم لسه متنشرتش.'],
     'm.exitPreview': ['Exit preview', 'خروج من المعاينة'], 'm.useCode': ['Use code', 'استخدم الكود'], 'm.gotIt': ['Got it', 'تمام']
   };
@@ -335,11 +349,33 @@ window.NZ = (function () {
     remove(id) { write(LS.requests, requests.list().filter(x => x.id !== id)); }
   };
 
+  /* ─────────────────────────── reviews ───────────────────────────
+     Published reviews live in the content (reviews[]) and are managed in the
+     dashboard. Reviews are pooled per collection (every zodiac hoodie is the
+     same garment), and a product's own reviews come first. */
+  const reviews = {
+    group: p => (p ? (p.reviewGroup || p.collection || p.id) : ''),
+    all: () => (C.reviews || []).filter(r => r && r.status !== 'hidden' && +r.rating > 0),
+    forProduct(p) {
+      const g = reviews.group(p);
+      return reviews.all().filter(r => { const q = product(r.pid); return r.pid === p.id || (q && reviews.group(q) === g); })
+        .sort((a, b) => ((b.pid === p.id) - (a.pid === p.id)) || ((b.date || 0) - (a.date || 0)));
+    },
+    stats(list) {
+      const dist = [0, 0, 0, 0, 0]; let sum = 0;
+      list.forEach(r => { const x = Math.max(1, Math.min(5, Math.round(+r.rating || 0))); dist[x - 1]++; sum += Math.max(1, Math.min(5, +r.rating || 0)); });
+      return { n: list.length, avg: list.length ? sum / list.length : 0, dist };
+    },
+    /* submitted from the product page: pending until approved in the dashboard */
+    pending: () => read(LS.reviews, []),
+    submit(r) { send('nasij/v1/reviews', r); const all = reviews.pending(); all.unshift(r); write(LS.reviews, all.slice(0, 50)); emit('reviews'); return r; }
+  };
+
   /* WhatsApp deep link */
   const wa = text => 'https://wa.me/' + String(C.settings.whatsapp || '').replace(/\D/g, '') + (text ? '?text=' + encodeURIComponent(text) : '');
 
   return {
-    LS, read, write, clone, esc, $, $$, uid, wp: WP, api: WP ? api : null, withQ, abs, absAll, send, hash, merge, load, content, previewing, use(o) { C = o; }, get C() { return C; }, get DEF() { return DEF; }, get published() { return published; },
+    LS, read, write, clone, esc, $, $$, uid, reviews, wp: WP, api: WP ? api : null, withQ, abs, absAll, send, hash, merge, load, content, previewing, use(o) { C = o; }, get C() { return C; }, get DEF() { return DEF; }, get published() { return published; },
     STR, t, L, LL, isAr, get lang() { return lang; }, setLang(l) { lang = l; write(LS.lang, l); emit('lang'); }, initLang() { if (!lang) lang = (C.settings && C.settings.defaultLang) || 'en'; },
     money, date, products, product, collections, collection, inCollection, variant, title, colourName, img, sign, signForDate,
     stockOf, soldOut, drop, dropTime, dropOpen, isPre, deposit, reservedCount, countdown,

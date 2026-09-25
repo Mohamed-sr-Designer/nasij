@@ -135,7 +135,7 @@
     const custOrders = S.orders().filter(x => x.customer.phone === o.customer.phone).length;
     const m = S.metrics(o);
     return `<div class="page">
-      ${ph(esc(o.id), { back: '#orders', badge: statusBdg(o.status) + (o.demo ? ' <span class="bdg bdg--plain faint">demo</span>' : ''), act: `${nx ? `<button class="btn btn--pri" data-st="${nx}">${icon('check')}${A('انقل لـ', 'Mark as')} ${L[nx]}</button>` : ''}<button class="btn" data-print>${icon('print')}${A('فاتورة', 'Invoice')}</button><a class="btn" target="_blank" rel="noopener" href="https://wa.me/${esc(waPhone(o.customer.phone))}?text=${encodeURIComponent(waMsg(o))}">${icon('wa')}WhatsApp</a><button class="btn btn--danger btn--ghost" data-rm>${icon('trash')}</button>` })}
+      ${ph(esc(o.id), { back: '#orders', badge: statusBdg(o.status) + (o.demo ? ' <span class="bdg bdg--plain faint">demo</span>' : ''), act: `${nx ? `<button class="btn btn--pri" data-st="${nx}">${icon('check')}${A('انقل لـ', 'Mark as')} ${L[nx]}</button>` : ''}<button class="btn" data-print>${icon('print')}${A('فاتورة', 'Invoice')}</button><a class="btn" target="_blank" rel="noopener" href="https://wa.me/${esc(waPhone(o.customer.phone))}?text=${encodeURIComponent(waMsg(o))}">${icon('wa')}WhatsApp</a><a class="btn" target="_blank" rel="noopener" href="https://wa.me/${esc(waPhone(o.customer.phone))}?text=${encodeURIComponent(reviewAsk(o))}" title="${A('ابعت للعميل لينك التقييم', 'Send the customer a review link')}">${icon('star')}${A('اطلب تقييم', 'Ask for a review')}</a><button class="btn btn--danger btn--ghost" data-rm>${icon('trash')}</button>` })}
       <p class="muted" style="margin:-8px 0 0">${dt(o.date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
       <div class="grid g-main">
         <div class="stack">
@@ -159,6 +159,13 @@
       </div></div>`;
   }
   const waPhone = p => { p = String(p || '').replace(/\D/g, ''); return p.indexOf('0') === 0 ? '2' + p : p; };
+  const absStore = hash => new URL(Z.storeUrl(hash), location.href).href;
+  function reviewAsk(o) {
+    const seen = {}, links = [];
+    (o.items || []).forEach(i => { const p = D().products.find(x => x.id === i.pid); if (!p || seen[p.id]) return; seen[p.id] = 1; links.push((AR() ? i.title_ar : i.title_en) + ':\n' + absStore('#/products/' + p.handle + '?review=1')); });
+    const first = String(o.customer.name || '').split(' ')[0];
+    return (AR() ? `أهلاً ${first} 👋 نورت نسيج!\nيهمنا جداً رأيك في القطعة — لو عندك دقيقة اكتب تقييمك من هنا:\n\n` : `Hi ${first} 👋 thanks for shopping NASIJ!\nWe'd love your honest take on the piece — it takes a minute:\n\n`) + links.join('\n\n');
+  }
   function waMsg(o) { return (AR() ? `أهلاً ${o.customer.name} 👋\nبخصوص طلبك ${o.id} من نسيج — الإجمالي ${money(o.totals.total)}.` : `Hi ${o.customer.name} 👋\nAbout your NASIJ order ${o.id} — total ${money(o.totals.total)}.`); }
   function mountOrder(id) {
     const o = S.get(id); if (!o) return;
@@ -273,6 +280,7 @@
           ${card(A('الحجز المسبق', 'Pre-order'), `${F.bool(base + '.preorder', A('المنتج ده بيتحجز بعربون', 'Sell as a pre-order with a deposit'), { rr: 1, hint: A('بيشتغل لما الدروب يكون شغال على نفس الكولكشن', 'Active while the drop runs on this collection') })}
             ${p.preorder ? `<p class="small muted" style="margin:10px 0 0">${D().drop.collection === p.collection && D().drop.on ? `✓ ${A('مربوط بالدروب', 'Linked to the drop')} · ${A('عربون', 'deposit')} ${D().drop.depositPct}% = ${money(Math.round(p.price * D().drop.depositPct / 100))}` : `⚠ ${A('الدروب مش شغال على الكولكشن ده — هيتباع عادي', 'The drop isn’t running on this collection — sells normally')}`}</p>` : ''}`)}
           ${card(A('الشارات', 'Badges'), `<div class="row">${[['new', A('جديد', 'New')], ['drop', A('دروب', 'Drop')]].map(([k, l]) => `<label class="tg"><input type="checkbox" data-badge="${k}" ${(p.badges || []).indexOf(k) > -1 ? 'checked' : ''}><span class="tg__sw"></span><span><b>${l}</b></span></label>`).join('')}</div>`)}
+          ${card(A('دليل المقاسات في صفحة المنتج', 'Size chart on the product page'), F.select(base + '.sizeChart', A('الرسمة والجدول', 'Illustration & table'), [['', A('تلقائي حسب الكولكشن', 'Automatic (by collection)')], ['hoodie', A('هودي', 'Hoodie')], ['pants', A('بنطلون', 'Sweatpants')], ['none', A('من غير', 'Hide')]]))}
           ${card(A('رابط المنتج', 'URL'), `${F.text(base + '.handle', A('الرابط', 'Handle'), { dir: 'ltr', hint: '#/products/' + esc(p.handle) })}`)}
         </div>
       </div></div>`;
@@ -449,6 +457,83 @@
     mount() {
       Z.$$('[data-rq]').forEach(s => s.addEventListener('change', () => { S.setRequest(s.dataset.rq, { status: s.value }); Z.toast(A('اتحدّث', 'Updated')); }));
       Z.$$('[data-rqdel]').forEach(b => b.addEventListener('click', () => Z.confirmBox(A('حذف الطلب؟', 'Delete this request?'), A('حذف', 'Delete'), () => { S.removeRequest(b.dataset.rqdel); Z.rerender(); }, true)));
+    }
+  });
+
+  /* ═════════════════════════ REVIEWS ═════════════════════════
+     Published reviews are content (draft → Publish). Customer submissions
+     wait in "Pending" until approved. Add real feedback you received on
+     WhatsApp / Instagram by hand — only reviews real customers wrote. */
+  const starTxt = r => '★★★★★'.slice(0, Math.round(+r || 0)) + '☆☆☆☆☆'.slice(0, 5 - Math.round(+r || 0));
+  const prodName = id => { const p = D().products.find(x => x.id === id); return p ? T(p, 'title') : id; };
+  function reviewModal(idx) {
+    const list = D().reviews || (D().reviews = []), r = idx != null ? list[idx] : { pid: '', name: '', rating: 5, text: '', date: Date.now(), verified: false, status: 'published' };
+    const ps = D().products.filter(p => p.status === 'active').concat(D().products.filter(p => p.status !== 'active'));
+    const d0 = new Date(r.date || Date.now()), iso = d0.getFullYear() + '-' + String(d0.getMonth() + 1).padStart(2, '0') + '-' + String(d0.getDate()).padStart(2, '0');
+    const pv = D().products.find(p => p.id === r.pid);
+    Z.modal(idx != null ? A('تعديل التقييم', 'Edit review') : A('إضافة تقييم حقيقي', 'Add a real review'), `<div style="display:grid;gap:12px">
+      <p class="small muted" style="margin:0">${A('ضيف رأي عميل حقيقي وصلك (واتساب، إنستجرام، أو بعد الاستلام) بنفس كلامه ولغته.', 'Add feedback a real customer sent you (WhatsApp, Instagram, after delivery) in their own words and language.')}</p>
+      <label class="fld"><span>${A('المنتج', 'Product')}</span><select class="inp" id="rvP">${ps.map(p => `<option value="${esc(p.id)}"${p.id === r.pid ? ' selected' : ''}>${esc(T(p, 'title'))}${p.status !== 'active' ? ' (' + A('مسودة', 'draft') + ')' : ''}</option>`).join('')}</select></label>
+      <div class="fgrid"><label class="fld"><span>${A('اسم العميل', 'Customer name')}</span><input class="inp" id="rvN" value="${esc(r.name || '')}" dir="auto"></label>
+        <label class="fld"><span>${A('التقييم', 'Rating')}</span><select class="inp" id="rvR">${[5, 4.5, 4, 3.5, 3, 2.5, 2, 1.5, 1].map(k => `<option value="${k}"${+r.rating === k ? ' selected' : ''}>${k} ★</option>`).join('')}</select></label></div>
+      <label class="fld"><span>${A('الكلام', 'Review text')}</span><textarea class="inp" id="rvT" rows="4" dir="auto">${esc(r.text || '')}</textarea></label>
+      <div class="fgrid"><label class="fld"><span>${A('المقاس', 'Size')}</span><input class="inp" id="rvS" value="${esc(r.size || '')}" dir="ltr" placeholder="L"></label>
+        <label class="fld"><span>${A('اللون', 'Colour')}</span><select class="inp" id="rvC"><option value="">—</option>${(pv || ps[0] || { variants: [] }).variants.map(v => `<option value="${esc(v.color)}"${v.color === r.color ? ' selected' : ''}>${esc(AR() ? v.color_ar : v.color_en)}</option>`).join('')}</select></label></div>
+      <div class="fgrid"><label class="fld"><span>${A('التاريخ', 'Date')}</span><input class="inp" type="date" id="rvD" value="${iso}"></label>
+        <label class="tg" style="align-self:end"><input type="checkbox" id="rvV" ${r.verified ? 'checked' : ''}><span class="tg__sw"></span><span><b>${A('مشتري مؤكَّد', 'Verified buyer')}</b><small>${A('اشترى فعلاً من المتجر', 'Actually bought from the store')}</small></span></label></div>
+    </div>`, `<button class="btn" data-mclose>${A('إلغاء', 'Cancel')}</button><button class="btn btn--pri" id="rvOk">${A('حفظ', 'Save')}</button>`, m => {
+      m.querySelector('#rvP').addEventListener('change', e => { const q = D().products.find(p => p.id === e.target.value); m.querySelector('#rvC').innerHTML = '<option value="">—</option>' + (q ? q.variants.map(v => `<option value="${esc(v.color)}">${esc(AR() ? v.color_ar : v.color_en)}</option>`).join('') : ''); });
+      m.querySelector('#rvOk').addEventListener('click', () => {
+        const x = { id: r.id || ('RV-' + N.uid().slice(0, 7)), pid: m.querySelector('#rvP').value, name: m.querySelector('#rvN').value.trim(), rating: +m.querySelector('#rvR').value, text: m.querySelector('#rvT').value.trim(), size: m.querySelector('#rvS').value.trim(), color: m.querySelector('#rvC').value, date: new Date(m.querySelector('#rvD').value || Date.now()).getTime(), verified: m.querySelector('#rvV').checked, status: r.status || 'published' };
+        if (!x.name || !x.text) return Z.toast(A('الاسم والكلام مطلوبين', 'Name and text are required'), true);
+        if (idx != null) list[idx] = x; else list.unshift(x);
+        Z.save(); Z.closeModal(); Z.rerender(); Z.toast(A('اتحفظ — اضغط نشر عشان يظهر', 'Saved — publish to show it'));
+      });
+    });
+  }
+  Z.view('reviews', {
+    perm: 'content', title: () => A('التقييمات', 'Reviews'),
+    render(arg, q) {
+      const tab = q.t || 'published', all = D().reviews || [], pend = Z.pendingReviews();
+      const pub = all.filter(r => r.status !== 'hidden'), hid = all.filter(r => r.status === 'hidden');
+      const st = N.reviews.stats(pub);
+      const tabs = [['published', A('منشورة', 'Published'), pub.length], ['pending', A('مستنية موافقة', 'Pending'), pend.length], ['hidden', A('مخفية', 'Hidden'), hid.length]];
+      const row = (r, i, kind) => `<tr><td style="width:56px">${(() => { const p = D().products.find(x => x.id === r.pid); return p ? `<img class="thumb" src="${esc(img0(p))}" alt="">` : ''; })()}</td>
+        <td><b>${esc(r.name || '')}</b>${r.verified ? ` <span class="bdg bdg--ok">${A('مؤكَّد', 'Verified')}</span>` : ''}<div class="faint small">${esc(prodName(r.pid))}${r.size ? ' · ' + esc(r.size) : ''} · ${d8(r.date)}</div></td>
+        <td style="color:#B7791F;white-space:nowrap;letter-spacing:1px">${starTxt(r.rating)}</td>
+        <td class="small" dir="auto" style="max-width:420px">${esc(r.text || '')}${kind === 'pending' && r.phone ? `<div class="faint mono" dir="ltr">${esc(r.phone)}</div>` : ''}</td>
+        <td class="r" style="white-space:nowrap">${kind === 'pending'
+          ? `<button class="btn btn--sm btn--pri" data-rvok="${esc(r.id)}">${icon('check')}${A('موافقة', 'Approve')}</button><button class="btn btn--sm btn--ghost" data-rvno="${esc(r.id)}">${A('رفض', 'Reject')}</button>`
+          : `<button class="iconb" data-rvedit="${i}" title="${A('تعديل', 'Edit')}">${icon('pen')}</button><button class="btn btn--sm btn--ghost" data-rvhide="${i}">${kind === 'hidden' ? A('إظهار', 'Show') : A('إخفاء', 'Hide')}</button><button class="iconb" data-rvdel="${i}" title="${A('حذف', 'Delete')}">${icon('trash')}</button>`}</td></tr>`;
+      const rows = tab === 'pending' ? pend.map(r => row(r, -1, 'pending')) : all.map((r, i) => ({ r, i })).filter(x => tab === 'hidden' ? x.r.status === 'hidden' : x.r.status !== 'hidden').map(x => row(x.r, x.i, tab));
+      return `<div class="page">${ph(A('التقييمات', 'Reviews'), { act: `<button class="btn btn--pri" data-rvadd>${icon('plus')}${A('إضافة تقييم', 'Add review')}</button>` })}
+        <div class="banner">${icon('star')}<div class="grow"><b>${A('التقييمات الحقيقية بتبيع أكتر', 'Real reviews sell better')}</b><span class="small">${A('العملاء بيكتبوا تقييمهم من صفحة المنتج وبيوصلوا هنا في «مستنية موافقة». ومن أي طلب اتسلّم اضغط «اطلب تقييم» يتبعت للعميل لينك على واتساب. تقدر كمان تضيف رأي وصلك على إنستجرام أو واتساب بنفس كلام العميل. التقييمات بتظهر في المتجر بعد «نشر».', 'Customers write reviews on the product page and they land here under “Pending”. From any delivered order, “Ask for a review” sends the customer a WhatsApp link. You can also add feedback you got on Instagram or WhatsApp in the customer’s own words. Reviews go live after Publish.')}</span></div></div>
+        <div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+          <div class="kpi"><span class="kpi__l">${A('متوسط التقييم', 'Average rating')}</span><b class="kpi__v">${st.n ? st.avg.toFixed(1) + ' ★' : '—'}</b></div>
+          <div class="kpi"><span class="kpi__l">${A('منشورة', 'Published')}</span><b class="kpi__v">${pub.length}</b></div>
+          <div class="kpi"><span class="kpi__l">${A('مستنية موافقة', 'Pending')}</span><b class="kpi__v">${pend.length}</b></div>
+          <div class="kpi"><span class="kpi__l">${A('مشتري مؤكَّد', 'Verified buyers')}</span><b class="kpi__v">${pub.filter(r => r.verified).length}</b></div>
+        </div>
+        <section class="card card--flush"><div class="tabs">${tabs.map(([k, l, n]) => `<a href="#reviews?t=${k}" class="${tab === k ? 'on' : ''}">${l} <span class="faint">${n}</span></a>`).join('')}</div>
+          ${rows.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th>${A('العميل', 'Customer')}</th><th>${A('التقييم', 'Rating')}</th><th>${A('الكلام', 'Review')}</th><th></th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`
+            : `<div class="empty">${icon('star')}<b>${tab === 'pending' ? A('مفيش تقييمات مستنية', 'Nothing waiting for approval') : A('لسه مفيش تقييمات هنا', 'No reviews here yet')}</b><span class="small muted">${A('ابعت «اطلب تقييم» للعملاء من صفحة الطلب بعد الاستلام.', 'Send “Ask for a review” to customers from the order page after delivery.')}</span></div>`}</section></div>`;
+    },
+    mount() {
+      const list = D().reviews || (D().reviews = []);
+      Z.$$('[data-rvadd]').forEach(b => b.addEventListener('click', () => reviewModal(null)));
+      Z.$$('[data-rvedit]').forEach(b => b.addEventListener('click', () => reviewModal(+b.dataset.rvedit)));
+      Z.$$('[data-rvhide]').forEach(b => b.addEventListener('click', () => { const r = list[+b.dataset.rvhide]; r.status = r.status === 'hidden' ? 'published' : 'hidden'; Z.save(); Z.rerender(); }));
+      Z.$$('[data-rvdel]').forEach(b => b.addEventListener('click', () => Z.confirmBox(A('حذف التقييم نهائياً؟', 'Delete this review?'), A('حذف', 'Delete'), () => { list.splice(+b.dataset.rvdel, 1); Z.save(); Z.rerender(); }, true)));
+      Z.$$('[data-rvok]').forEach(b => b.addEventListener('click', () => {
+        const r = Z.pendingReviews().find(x => x.id === b.dataset.rvok); if (!r) return;
+        const p = D().products.find(x => x.id === r.pid);
+        const phone = String(r.phone || '').replace(/\D/g, '');
+        const bought = !!phone && S.orders().some(o => !o.demo && String(o.customer.phone || '').replace(/\D/g, '') === phone && (o.items || []).some(i => i.pid === r.pid || (p && i.collection === p.collection)));
+        list.unshift({ id: r.id, pid: r.pid, name: r.name, rating: +r.rating, text: r.text, size: r.size || '', color: r.color || '', date: r.date || Date.now(), verified: bought, status: 'published' });
+        Z.dropPending(r.id); Z.save(); Z.rerender();
+        Z.toast(bought ? A('اتضاف ومؤكَّد من الطلبات — اضغط نشر', 'Approved as a verified buyer — hit Publish') : A('اتضاف — اضغط نشر عشان يظهر', 'Approved — hit Publish to show it'));
+      }));
+      Z.$$('[data-rvno]').forEach(b => b.addEventListener('click', () => Z.confirmBox(A('رفض التقييم ده؟', 'Reject this review?'), A('رفض', 'Reject'), () => { Z.dropPending(b.dataset.rvno); Z.rerender(); }, true)));
     }
   });
 

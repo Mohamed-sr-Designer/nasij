@@ -41,7 +41,7 @@ window.NZA = (function () {
     ext: '<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>', copy: '<rect x="8" y="8" width="12" height="12" rx="1"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
     down2: '<path d="M12 4v12M7 11l5 5 5-5M4 20h16"/>', wa: '<path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"/><path d="M9 9.5c.3 2.4 2.2 4.4 4.6 4.9l1.2-1.2 2 .9-.4 1.6c-3.8.3-8.4-3.9-8.1-7.8l1.6-.4.9 2z"/>',
     print: '<path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2"/><path d="M7 14h10v6H7z"/>', check: '<path d="m5 12 4.5 4.5L19 7"/>',
-    x: '<path d="M6 6l12 12M18 6 6 18"/>', logout: '<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>', globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
+    x: '<path d="M6 6l12 12M18 6 6 18"/>', star: '<path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>', logout: '<path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10"/>', globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
     send: '<path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/>', drag: '<circle cx="9" cy="7" r="1"/><circle cx="15" cy="7" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="17" r="1"/><circle cx="15" cy="17" r="1"/>'
   };
   const icon = n => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${IC[n] || ''}</svg>`;
@@ -196,13 +196,13 @@ window.NZA = (function () {
     return { name: parts[0] || 'home', arg: parts.slice(1).join('/'), q };
   }
   const NAV = () => [
-    { g: '', items: [['home', 'home', A('الرئيسية', 'Home')], ['orders', 'orders', A('الطلبات', 'Orders'), 'orders'], ['products', 'tag', A('المنتجات', 'Products'), 'products'], ['collections', 'coll', A('الكولكشنز', 'Collections'), 'products', 1], ['inventory', 'box', A('المخزون', 'Inventory'), 'products', 1], ['customers', 'users', A('العملاء', 'Customers'), 'orders'], ['analytics', 'chart', A('التحليلات', 'Analytics'), 'analytics'], ['reports', 'report', A('التقارير', 'Reports'), 'analytics', 1], ['discounts', 'disc', A('أكواد الخصم', 'Discounts'), 'promos'], ['drop', 'orbit', A('الدروب والحجوزات', 'Drop & pre-orders'), 'products'], ['requests', 'pen', A('طلبات التخصيص', 'Custom requests'), 'orders']] },
+    { g: '', items: [['home', 'home', A('الرئيسية', 'Home')], ['orders', 'orders', A('الطلبات', 'Orders'), 'orders'], ['products', 'tag', A('المنتجات', 'Products'), 'products'], ['collections', 'coll', A('الكولكشنز', 'Collections'), 'products', 1], ['inventory', 'box', A('المخزون', 'Inventory'), 'products', 1], ['customers', 'users', A('العملاء', 'Customers'), 'orders'], ['analytics', 'chart', A('التحليلات', 'Analytics'), 'analytics'], ['reports', 'report', A('التقارير', 'Reports'), 'analytics', 1], ['discounts', 'disc', A('أكواد الخصم', 'Discounts'), 'promos'], ['drop', 'orbit', A('الدروب والحجوزات', 'Drop & pre-orders'), 'products'], ['requests', 'pen', A('طلبات التخصيص', 'Custom requests'), 'orders'], ['reviews', 'star', A('التقييمات', 'Reviews'), 'content']] },
     { g: A('المتجر الإلكتروني', 'Online store'), items: [['homepage', 'layers', A('أقسام الرئيسية', 'Homepage'), 'content'], ['theme', 'brush', A('الثيم والهوية', 'Theme'), 'content'], ['navigation', 'menu', A('القوائم', 'Navigation'), 'content'], ['pages', 'page', A('الصفحات والأسئلة', 'Pages & FAQ'), 'content'], ['journal', 'book', A('المجلة', 'Journal'), 'content'], ['copy', 'type', A('نصوص الموقع', 'Store text'), 'content'], ['media', 'image', A('مكتبة الصور', 'Media'), 'content']] },
     { g: A('الإعدادات', 'Settings'), items: [['general', 'gear', A('عامة', 'General'), 'settings'], ['shipping', 'truck', A('الشحن والتوصيل', 'Shipping'), 'settings'], ['payments', 'card', A('طرق الدفع', 'Payments'), 'settings'], ['staff', 'lock', A('الموظفين والصلاحيات', 'Staff & permissions'), 'owner'], ['publish', 'upload', A('النشر', 'Publish'), 'settings']] }
   ];
   function counts() {
     const os = S.orders();
-    return { orders: os.filter(o => o.status === 'pending' || o.status === 'reserved').length, requests: S.requests().filter(r => r.status === 'new').length };
+    return { orders: os.filter(o => o.status === 'pending' || o.status === 'reserved').length, requests: S.requests().filter(r => r.status === 'new').length, reviews: pendingReviews().length };
   }
   function shell() {
     const c = counts();
@@ -218,7 +218,7 @@ window.NZA = (function () {
         </div>
       </header>
       <div class="shell">
-        <nav class="side" id="side">${NAV().map(g => `${g.g ? `<div class="side__g">${g.g}</div>` : ''}${g.items.filter(([k, , , perm]) => !(WP && k === 'staff') && (!perm || (perm === 'owner' ? me.role === 'owner' : can(perm)))).map(([k, ic, l, , sub]) => `<a href="#${k}" data-nav="${k}"${sub ? ' style="padding-inline-start:36px;font-weight:500"' : ''}>${sub ? '' : icon(ic)}<span>${l}</span>${k === 'orders' && c.orders ? `<span class="cnt">${c.orders}</span>` : ''}${k === 'requests' && c.requests ? `<span class="cnt">${c.requests}</span>` : ''}</a>`).join('')}`).join('')}
+        <nav class="side" id="side">${NAV().map(g => `${g.g ? `<div class="side__g">${g.g}</div>` : ''}${g.items.filter(([k, , , perm]) => !(WP && k === 'staff') && (!perm || (perm === 'owner' ? me.role === 'owner' : can(perm)))).map(([k, ic, l, , sub]) => `<a href="#${k}" data-nav="${k}"${sub ? ' style="padding-inline-start:36px;font-weight:500"' : ''}>${sub ? '' : icon(ic)}<span>${l}</span>${k === 'orders' && c.orders ? `<span class="cnt">${c.orders}</span>` : ''}${k === 'requests' && c.requests ? `<span class="cnt">${c.requests}</span>` : ''}${k === 'reviews' && c.reviews ? `<span class="cnt">${c.reviews}</span>` : ''}</a>`).join('')}`).join('')}
           <div class="side__foot"><span class="muted small">${esc(me.email)} · ${me.role === 'owner' ? A('المالك', 'Owner') : A('موظف', 'Staff')}</span></div>
         </nav>
         <main class="main"><div id="view"></div>
@@ -339,7 +339,13 @@ window.NZA = (function () {
   function preview() { N.write(LS.draft, draft); localStorage.setItem(LS.preview, '1'); window.open(storeUrl('#/'), '_blank'); }
 
   /* ─────────────── WordPress data (orders, requests, visits live in the site database) ─────────────── */
-  const wpc = { orders: [], requests: [], snap: {} };
+  const wpc = { orders: [], requests: [], reviews: [], snap: {} };
+  /* reviews customers submitted from the product page, waiting for approval */
+  function pendingReviews() { return WP ? wpc.reviews : N.reviews.pending(); }
+  function dropPending(id) {
+    if (WP) { wpc.reviews = wpc.reviews.filter(r => r.id !== id); wpSend('nasij/v1/reviews/' + encodeURIComponent(id), 'DELETE'); return; }
+    N.write(N.LS.reviews, N.reviews.pending().filter(r => r.id !== id));
+  }
   async function wpGet(path) { const r = await fetch(N.withQ(N.api(path), 'ts', Date.now()), { headers: { 'X-WP-Nonce': WP.nonce }, credentials: 'same-origin', cache: 'no-store' }); if (!r.ok) throw new Error('WordPress ' + r.status); return r.json(); }
   function wpSend(path, method, body) {
     const h = { 'Content-Type': 'application/json', 'X-WP-Nonce': WP.nonce }; if (method === 'DELETE') h['X-HTTP-Method-Override'] = 'DELETE';
@@ -349,7 +355,8 @@ window.NZA = (function () {
   }
   async function wpSync(bg) {
     try {
-      const [os, rs, ss] = await Promise.all([wpGet('nasij/v1/orders'), wpGet('nasij/v1/requests'), wpGet('nasij/v1/track')]);
+      const [os, rs, ss, rv] = await Promise.all([wpGet('nasij/v1/orders'), wpGet('nasij/v1/requests'), wpGet('nasij/v1/track'), wpGet('nasij/v1/reviews').catch(() => [])]);
+      wpc.reviews = Array.isArray(rv) ? rv : [];
       const was = wpc.orders.length + '/' + wpc.requests.length;
       wpc.orders = Array.isArray(os) ? os : []; wpc.requests = Array.isArray(rs) ? rs : [];
       wpc.snap = {}; wpc.orders.forEach(o => { wpc.snap[o.id] = JSON.stringify(o); });
@@ -458,6 +465,6 @@ window.NZA = (function () {
 
   return {
     A, AR, esc, $, $$, icon, money, dt, d8, toast, modal, closeModal, confirmBox, F, listEd, card, ph, deltaHTML, statusBdg, rangePicker, curRange, csv, readImg, allImages,
-    view, render, rerender, get, set, save, storeUrl, wp: WP, wpSync, get draft() { return draft; }, dirty, discard, publish, download, preview, gh, token, users, saveUsers, sha, PERMS, can, get me() { return me; }, useDraft, boot, LS
+    view, render, rerender, get, set, save, storeUrl, wp: WP, wpSync, pendingReviews, dropPending, get draft() { return draft; }, dirty, discard, publish, download, preview, gh, token, users, saveUsers, sha, PERMS, can, get me() { return me; }, useDraft, boot, LS
   };
 })();

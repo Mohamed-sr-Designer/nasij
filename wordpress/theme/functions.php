@@ -8,7 +8,7 @@
  *  - POST     /wp-json/nasij/v1/orders             new order from the checkout (public, rate-limited)
  *  - GET      /wp-json/nasij/v1/orders             all orders (dashboard)
  *  - POST     /wp-json/nasij/v1/orders/{id}        update / DELETE an order (dashboard)
- *  - same three for /requests (custom & bulk requests)
+ *  - same three for /requests (custom & bulk requests) and /reviews (pending reviews)
  *  - POST/GET /wp-json/nasij/v1/track              visit sessions for the analytics
  *  - /nasij-admin/ (or /?nasij_admin=1)            the dashboard, for Administrators and Editors
  *
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'NASIJ_VER', '2.1.0' );
-define( 'NASIJ_DB_VER', '1' );
+define( 'NASIJ_DB_VER', '2' );
 
 /* ─────────────────────────── access ─────────────────────────── */
 
@@ -46,6 +46,7 @@ function nasij_tables() {
 		'orders'   => $wpdb->prefix . 'nasij_orders',
 		'requests' => $wpdb->prefix . 'nasij_requests',
 		'sessions' => $wpdb->prefix . 'nasij_sessions',
+		'reviews'  => $wpdb->prefix . 'nasij_reviews',
 	);
 }
 
@@ -69,6 +70,18 @@ function nasij_install() {
 	);
 	dbDelta(
 		"CREATE TABLE {$t['requests']} (
+		id varchar(40) NOT NULL,
+		created bigint(20) unsigned NOT NULL DEFAULT 0,
+		updated bigint(20) unsigned NOT NULL DEFAULT 0,
+		status varchar(20) NOT NULL DEFAULT '',
+		phone varchar(32) NOT NULL DEFAULT '',
+		data longtext NOT NULL,
+		PRIMARY KEY  (id),
+		KEY created (created)
+		) $cs;"
+	);
+	dbDelta(
+		"CREATE TABLE {$t['reviews']} (
 		id varchar(40) NOT NULL,
 		created bigint(20) unsigned NOT NULL DEFAULT 0,
 		updated bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -133,6 +146,7 @@ function nasij_config( $admin = false ) {
 		'base' => trailingslashit( get_template_directory_uri() ),
 		'home' => home_url( '/' ),
 		'ver'  => NASIJ_VER,
+		'admin' => nasij_admin_url(),
 	);
 	if ( $admin ) {
 		$u              = wp_get_current_user();
@@ -290,7 +304,7 @@ add_action(
 				),
 			)
 		);
-		foreach ( array( 'orders', 'requests' ) as $kind ) {
+		foreach ( array( 'orders', 'requests', 'reviews' ) as $kind ) {
 			register_rest_route(
 				$ns,
 				'/' . $kind,
@@ -394,11 +408,12 @@ function nasij_list( $kind ) {
 
 function nasij_create( $kind, WP_REST_Request $req ) {
 	$orders = 'orders' === $kind;
-	if ( ! nasij_rate( $orders ? 'o' : 'r', $orders ? 20 : 10, HOUR_IN_SECONDS ) ) {
+	$rev    = 'reviews' === $kind;
+	if ( ! nasij_rate( $orders ? 'o' : ( $rev ? 'v' : 'r' ), $orders ? 20 : ( $rev ? 6 : 10 ), HOUR_IN_SECONDS ) ) {
 		return nasij_err( 'nasij_slow', 'Too many submissions — please try again later.', 429 );
 	}
 	$body = $req->get_body();
-	if ( strlen( $body ) > ( $orders ? 200000 : 8 * 1024 * 1024 ) ) {
+	if ( strlen( $body ) > ( $orders ? 200000 : ( $rev ? 20000 : 8 * 1024 * 1024 ) ) ) {
 		return nasij_err( 'nasij_too_big', 'The submission is too large.', 413 );
 	}
 	$d = json_decode( $body, true );
@@ -409,6 +424,13 @@ function nasij_create( $kind, WP_REST_Request $req ) {
 		return nasij_err( 'nasij_bad', 'Invalid order.', 400 );
 	}
 	$d  = nasij_clean_deep( $d );
+	if ( $rev ) {
+		$d['rating'] = max( 1, min( 5, round( (float) ( isset( $d['rating'] ) ? $d['rating'] : 0 ) * 2 ) / 2 ) );
+		if ( empty( $d['text'] ) || empty( $d['pid'] ) || empty( $d['name'] ) ) {
+			return nasij_err( 'nasij_bad', 'Invalid review.', 400 );
+		}
+		unset( $d['images'], $d['verified'] );
+	}
 	$id = nasij_clean_id( $d['id'] );
 	if ( strlen( $id ) < 3 ) {
 		return nasij_err( 'nasij_bad', 'Invalid id.', 400 );
@@ -430,7 +452,7 @@ function nasij_create( $kind, WP_REST_Request $req ) {
 		$d['log']    = array( array( 's' => $d['status'], 't' => $now ) );
 		$phone       = isset( $d['customer']['phone'] ) ? $d['customer']['phone'] : '';
 	} else {
-		$d['status'] = 'new';
+		$d['status'] = $rev ? 'pending' : 'new';
 		$phone       = isset( $d['phone'] ) ? $d['phone'] : '';
 	}
 	$row = array(
@@ -496,7 +518,11 @@ function nasij_notify( $kind, $d ) {
 	if ( ! $to ) {
 		return;
 	}
-	$link = nasij_admin_url() . '#' . ( 'orders' === $kind ? 'orders/' : 'requests' ) . ( 'orders' === $kind ? rawurlencode( $d['id'] ) : '' );
+	$link = nasij_admin_url() . '#' . ( 'orders' === $kind ? 'orders/' . rawurlencode( $d['id'] ) : ( 'reviews' === $kind ? 'reviews?t=pending' : 'requests' ) );
+	if ( 'reviews' === $kind ) {
+		wp_mail( $to, '[NASIJ] New review waiting for approval', 'New ' . $d['rating'] . '-star review from ' . ( isset( $d['name'] ) ? $d['name'] : '' ) . ":\n\n" . ( isset( $d['text'] ) ? $d['text'] : '' ) . "\n\nApprove or reject it: " . $link );
+		return;
+	}
 	if ( 'orders' === $kind ) {
 		$lines = array();
 		foreach ( (array) $d['items'] as $i ) {
