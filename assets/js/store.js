@@ -48,6 +48,45 @@
       <img class="logo-l" src="${esc(N.abs((C().theme || {}).logo || 'images/logo-en.png'))}" alt="${esc(L(S(), 'name'))}" width="120" height="26">
       <img class="logo-d" src="${esc(N.abs((C().theme || {}).logoLight || 'images/logo-en-white.png'))}" alt="" width="120" height="26" aria-hidden="true"></a>`;
 
+  /* horizontal product rails: arrow buttons + click-and-drag with the mouse (touch keeps native swipe) */
+  const railNav = id => `<div class="rail-nav" data-rail-for="${id}"><button type="button" class="rail-btn" data-rail="-1" aria-label="${esc(LL({ en: 'Previous', ar: 'السابق' }))}">${icon('arrow')}</button><button type="button" class="rail-btn" data-rail="1" aria-label="${esc(LL({ en: 'Next', ar: 'التالي' }))}">${icon('arrow')}</button></div>`;
+  function railStep(rail, dir) {
+    const card = rail.firstElementChild, gap = parseFloat(getComputedStyle(rail).columnGap) || 0;
+    const w = card ? card.getBoundingClientRect().width + gap : rail.clientWidth * .8;
+    const n = Math.max(1, Math.floor((rail.clientWidth + gap) / w) - 0);
+    const before = rail.scrollLeft, delta = dir * n * w * (N.isAr() ? -1 : 1);
+    rail.scrollBy({ left: delta, behavior: 'smooth' });
+    setTimeout(() => { if (Math.abs(rail.scrollLeft - before) < 2) rail.scrollBy({ left: delta, behavior: 'instant' }); if (rail._upd) rail._upd(); }, 450);
+    setTimeout(() => { if (rail._upd) rail._upd(); }, 900);
+  }
+  function mountRails() {
+    $$('.rail').forEach(rail => {
+      const nav = rail.id ? $(`[data-rail-for="${rail.id}"]`) : null;
+      const upd = () => {
+        if (!nav) return;
+        const x = Math.abs(rail.scrollLeft), max = rail.scrollWidth - rail.clientWidth;
+        const [prev, next] = $$('.rail-btn', nav);
+        prev.disabled = x < 4; next.disabled = x > max - 4;
+        nav.hidden = max < 8;
+      };
+      rail._upd = upd;
+      let st = null, moved = false;
+      rail.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; st = { x: e.clientX, sl: rail.scrollLeft, id: e.pointerId }; moved = false; });
+      rail.addEventListener('pointermove', e => {
+        if (!st) return;
+        const dx = e.clientX - st.x;
+        if (!moved && Math.abs(dx) > 6) { moved = true; rail.classList.add('is-drag'); try { rail.setPointerCapture(st.id); } catch (x) { } }
+        if (moved) rail.scrollLeft = st.sl - dx;
+      });
+      const end = () => { if (!st) return; st = null; if (moved) rail.classList.remove('is-drag'); setTimeout(upd, 350); };
+      rail.addEventListener('pointerup', end); rail.addEventListener('pointercancel', end); rail.addEventListener('lostpointercapture', end);
+      rail.addEventListener('click', e => { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+      rail.addEventListener('dragstart', e => e.preventDefault());
+      rail.addEventListener('scroll', upd, { passive: true });
+      addEventListener('resize', upd, { passive: true }); onceTimers.push(() => removeEventListener('resize', upd));
+      setTimeout(upd, 60);
+    });
+  }
   function copyText(txt) {
     try { if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(txt); } catch (e) { }
     const ta = document.createElement('textarea'); ta.value = txt; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;opacity:0;top:0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) { } ta.remove();
@@ -403,7 +442,7 @@
       if (!list.length) return '';
       return `<section class="sec tone-light" id="drop">
         <div class="wrap">
-          ${sh(L(s, 'kicker'), L(s, 'title'), '§ 02', `<a class="btn btn--line btn--sm" href="#/drops">${t('c.viewAll')} ${arr()}</a>`)}
+          ${sh(L(s, 'kicker'), L(s, 'title'), '§ 02', `${railNav('dropRail')}<a class="btn btn--line btn--sm" href="#/drops">${t('c.viewAll')} ${arr()}</a>`)}
           ${d.on && N.dropOpen() ? `<div class="rv" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:end;margin-bottom:28px" data-dropbar>
             <div style="display:grid;gap:10px">${meterHTML()}</div>${cdHTML(N.dropTime())}</div>` : ''}
           <div class="rail" id="dropRail">${cards(list).join('')}</div>
@@ -668,7 +707,7 @@
       </div>
       ${chartOf(p) !== 'none' ? `<section class="pdp-sec" id="sizeFit">${sh(t('p.sizeFit'), LL({ en: 'Find your fit.', ar: 'اعرف مقاسك.' }), '', `<a class="btn btn--line btn--sm" href="#/size-guide">${t('p.fullGuide')} ${arr()}</a>`)}<div class="sg" id="pdpSg">${pdpSizeInner()}</div></section>` : ''}
       ${reviewsHTML(p)}
-      ${others.length ? `<div style="padding-bottom:80px">${sh(p.sign ? t('p.other') : t('p.also'), '', '')}<div class="rail">${cards(others.slice(0, 12), { color: p.sign ? v.color : '' }).join('')}</div></div>` : ''}
+      ${others.length ? `<div style="padding-bottom:80px">${sh(p.sign ? t('p.other') : t('p.also'), '', '', railNav('pdpRail'))}<div class="rail" id="pdpRail">${cards(others.slice(0, 12), { color: p.sign ? v.color : '' }).join('')}</div></div>` : ''}
       </div>
       <div class="sticky-buy tone-light" id="stickyBuy" aria-hidden="true"><div class="sticky-buy__in">
         <img class="sticky-buy__img" src="${esc(imgs[0])}" alt="" width="90" height="120">
@@ -1147,6 +1186,7 @@
     // tabbar state
     $$('.tabbar a').forEach(a => a.classList.toggle('on', a.dataset.tab === r.path || (a.dataset.tab === '/shop' && /^\/(shop|collections|products)/.test(r.path))));
     $$('.hdr__nav a').forEach(a => a.classList.toggle('is-on', a.getAttribute('href') === '#' + r.path));
+    mountRails();
     if (name === 'home') mountDial();
     if (name === 'product') mountProduct();
     if (name === 'custom') mountCustom();
@@ -1215,6 +1255,7 @@
         if (N.cart.add(pid, vid, size, 1)) { try { window.NZ_TRACK && NZ_TRACK.event('add_to_cart', { id: pid }); } catch (x) { } toast(N.isPre(p) ? t('p.reserved') : t('p.added'), { action: t('nav.bag'), onAction: () => openDrawer('bag') }); }
         return;
       }
+      if (a.dataset.rail) { const nav = a.closest('[data-rail-for]'), rail = nav && $('#' + nav.dataset.railFor); if (rail) railStep(rail, +a.dataset.rail); return; }
       if (a.dataset.gal != null) { galShow(+a.dataset.gal); return; }
       if (a.hasAttribute('data-copylink')) { copyText(location.href); toast(t('p.linkCopied')); return; }
       if (a.hasAttribute('data-rvopen')) { const f = $('#rvForm'); if (f) { f.hidden = false; $('#rvDone').hidden = true; f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { const i = f.querySelector('[name="name"]'); if (i) i.focus({ preventScroll: true }); }, 500); } return; }
