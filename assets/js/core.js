@@ -161,7 +161,7 @@ window.NZ = (function () {
     'm.rights': ['© {y} NASIJ. Made in Egypt.', '© {y} نسيج. صناعة مصرية.'], 'm.copied': ['Copied', 'اتنسخ'], 'm.dashboard': ['Dashboard', 'لوحة التحكم'],
     // product page: share, size & fit
     'p.copyLink': ['Copy link', 'انسخ اللينك'], 'p.shareWa': ['WhatsApp', 'واتساب'], 'p.linkCopied': ['Link copied — share it anywhere', 'اتنسخ اللينك — ابعته لأي حد'],
-    'p.sizeFit': ['Size & fit', 'المقاس والقصّة'], 'p.fullGuide': ['Full size guide', 'دليل المقاسات كامل'], 'p.pickedSize': ['Your size', 'مقاسك'],
+    'p.sizeFit': ['Size & fit', 'المقاس والقصّة'], 'p.fitTip': ['Oversized fit — take your usual size.', 'القصّة أوفرسايز — خُد مقاسك المعتاد.'], 'p.fitOpen': ['Size chart', 'جدول المقاسات'], 'p.fullGuide': ['Full size guide', 'دليل المقاسات كامل'], 'p.pickedSize': ['Your size', 'مقاسك'],
     // reviews
     'rv.title': ['Reviews', 'التقييمات'], 'rv.none': ['No reviews yet.', 'مفيش تقييمات لسه.'], 'rv.first': ['Write the first review', 'اكتب أول تقييم'],
     'rv.write': ['Write a review', 'اكتب تقييمك'], 'rv.count': ['{n} reviews', '{n} تقييم'], 'rv.one': ['1 review', 'تقييم واحد'], 'rv.of': ['out of 5', 'من ٥'],
@@ -201,6 +201,9 @@ window.NZ = (function () {
   /* ─────────────────────────── catalog ─────────────────────────── */
   const products = all => (C.products || []).filter(p => all || p.status === 'active');
   const product = idOrHandle => (C.products || []).find(p => p.id === idOrHandle || p.handle === idOrHandle);
+  /* price of a colour: its own price if set, else the product price */
+  const priceOf = (p, v) => (v && v.price != null && v.price !== '' && !isNaN(+v.price) ? +v.price : +(p && p.price) || 0);
+  const minPrice = p => Math.min.apply(null, (p.variants && p.variants.length ? p.variants : [null]).map(v => priceOf(p, v)));
   const collections = all => (C.collections || []).filter(c => all || c.status === 'active');
   const collection = h => (C.collections || []).find(c => c.id === h || c.handle === h);
   const inCollection = h => products().filter(p => p.collection === h && collection(h) && collection(h).status === 'active').sort((a, b) => (a.sort || 0) - (b.sort || 0));
@@ -270,7 +273,7 @@ window.NZ = (function () {
       let full = 0, now = 0, merch = 0;
       const rows = lines.map(l => {
         const p = product(l.pid), v = variant(p, l.vid);
-        const unit = +p.price || 0, dep = l.pre ? deposit(unit) : unit;
+        const unit = priceOf(p, v), dep = l.pre ? deposit(unit) : unit;
         full += unit * l.qty; now += dep * l.qty; if (!l.pre) merch += unit * l.qty;
         return { l, p, v, unit, dep, line: unit * l.qty, lineNow: dep * l.qty };
       });
@@ -375,7 +378,7 @@ window.NZ = (function () {
   const wa = text => 'https://wa.me/' + String(C.settings.whatsapp || '').replace(/\D/g, '') + (text ? '?text=' + encodeURIComponent(text) : '');
 
   return {
-    LS, read, write, clone, esc, $, $$, uid, reviews, wp: WP, api: WP ? api : null, withQ, abs, absAll, send, hash, merge, load, content, previewing, use(o) { C = o; }, get C() { return C; }, get DEF() { return DEF; }, get published() { return published; },
+    LS, read, write, clone, esc, $, $$, uid, reviews, priceOf, minPrice, wp: WP, api: WP ? api : null, withQ, abs, absAll, send, hash, merge, load, content, previewing, use(o) { C = o; }, get C() { return C; }, get DEF() { return DEF; }, get published() { return published; },
     STR, t, L, LL, isAr, get lang() { return lang; }, setLang(l) { lang = l; write(LS.lang, l); emit('lang'); }, initLang() { if (!lang) lang = (C.settings && C.settings.defaultLang) || 'en'; },
     money, date, products, product, collections, collection, inCollection, variant, title, colourName, img, sign, signForDate,
     stockOf, soldOut, drop, dropTime, dropOpen, isPre, deposit, reservedCount, countdown,

@@ -1,6 +1,6 @@
 /* NASIJ — default content. Generated; the dashboard publishes overrides as content.json. */
 window.NZ_DEFAULTS = {
- "v": 4,
+ "v": 5,
  "settings": {
   "name_en": "NASIJ",
   "name_ar": "نسيج",
@@ -706,7 +706,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "شرارة الريادة",
    "desc_en": "The trailblazer’s spark. A celestial back print of the Aries constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "شرارة الريادة. طبعة سماوية كبيرة على الظهر لكوكبة الحمل وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 850,
+   "price": 780,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -738,7 +738,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/aries-black-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 850
     },
     {
      "id": "z-aries-white",
@@ -751,7 +752,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/aries-white-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 830
     },
     {
      "id": "z-aries-blue",
@@ -764,7 +766,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/aries-blue-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 810
     },
     {
      "id": "z-aries-olive",
@@ -777,7 +780,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/aries-olive-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 780
     },
     {
      "id": "z-aries-maroon",
@@ -790,7 +794,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/aries-maroon-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 800
     }
    ]
   },
@@ -807,7 +812,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "ثبات وأصالة",
    "desc_en": "Grounded and steadfast. A celestial back print of the Taurus constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "ثبات وأصالة. طبعة سماوية كبيرة على الظهر لكوكبة الثور وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 820,
+   "price": 780,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -839,7 +844,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/taurus-black-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 850
     },
     {
      "id": "z-taurus-white",
@@ -852,7 +858,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/taurus-white-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 830
     },
     {
      "id": "z-taurus-blue",
@@ -865,7 +872,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/taurus-blue-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 810
     },
     {
      "id": "z-taurus-olive",
@@ -878,7 +886,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/taurus-olive-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 780
     },
     {
      "id": "z-taurus-maroon",
@@ -891,7 +900,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/taurus-maroon-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 800
     }
    ]
   },
@@ -908,7 +918,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "عقلان وروح واحدة",
    "desc_en": "Two minds, one soul. A celestial back print of the Gemini constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "عقلان وروح واحدة. طبعة سماوية كبيرة على الظهر لكوكبة الجوزاء وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 800,
+   "price": 780,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -940,7 +950,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/gemini-black-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 850
     },
     {
      "id": "z-gemini-white",
@@ -953,7 +964,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/gemini-white-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 830
     },
     {
      "id": "z-gemini-blue",
@@ -966,7 +978,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/gemini-blue-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 810
     },
     {
      "id": "z-gemini-olive",
@@ -979,7 +992,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/gemini-olive-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 780
     },
     {
      "id": "z-gemini-maroon",
@@ -992,7 +1006,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/gemini-maroon-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 800
     }
    ]
   },
@@ -1009,7 +1024,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "على إيقاع القمر",
    "desc_en": "Ruled by the moon’s tide. A celestial back print of the Cancer constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "على إيقاع القمر. طبعة سماوية كبيرة على الظهر لكوكبة السرطان وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 790,
+   "price": 780,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1041,7 +1056,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/cancer-black-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 850
     },
     {
      "id": "z-cancer-white",
@@ -1054,7 +1070,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/cancer-white-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 830
     },
     {
      "id": "z-cancer-blue",
@@ -1067,7 +1084,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/cancer-blue-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 810
     },
     {
      "id": "z-cancer-olive",
@@ -1080,7 +1098,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/cancer-olive-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 780
     },
     {
      "id": "z-cancer-maroon",
@@ -1093,7 +1112,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/cancer-maroon-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 800
     }
    ]
   },
@@ -1110,7 +1130,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "ملكية وتألّق",
    "desc_en": "Radiant and regal. A celestial back print of the Leo constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "ملكية وتألّق. طبعة سماوية كبيرة على الظهر لكوكبة الأسد وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 850,
+   "price": 780,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1142,7 +1162,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/leo-black-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 850
     },
     {
      "id": "z-leo-white",
@@ -1155,7 +1176,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/leo-white-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 830
     },
     {
      "id": "z-leo-blue",
@@ -1168,7 +1190,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/leo-blue-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 810
     },
     {
      "id": "z-leo-olive",
@@ -1181,7 +1204,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/leo-olive-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 780
     },
     {
      "id": "z-leo-maroon",
@@ -1194,7 +1218,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/leo-maroon-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 800
     }
    ]
   },
@@ -1211,7 +1236,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "دقّة وصفاء",
    "desc_en": "Precise and earthy. A celestial back print of the Virgo constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "دقّة وصفاء. طبعة سماوية كبيرة على الظهر لكوكبة العذراء وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 810,
+   "price": 780,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1243,7 +1268,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/virgo-black-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 850
     },
     {
      "id": "z-virgo-white",
@@ -1256,7 +1282,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/virgo-white-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 830
     },
     {
      "id": "z-virgo-blue",
@@ -1269,7 +1296,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/virgo-blue-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 810
     },
     {
      "id": "z-virgo-olive",
@@ -1282,7 +1310,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/virgo-olive-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 780
     },
     {
      "id": "z-virgo-maroon",
@@ -1295,7 +1324,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/virgo-maroon-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 800
     }
    ]
   },
@@ -1312,7 +1342,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "اتزان وانسجام",
    "desc_en": "Poised and in balance. A celestial back print of the Libra constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "اتزان وانسجام. طبعة سماوية كبيرة على الظهر لكوكبة الميزان وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 830,
+   "price": 780,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1344,7 +1374,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/libra-black-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 850
     },
     {
      "id": "z-libra-white",
@@ -1357,7 +1388,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/libra-white-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 830
     },
     {
      "id": "z-libra-blue",
@@ -1370,7 +1402,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/libra-blue-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 810
     },
     {
      "id": "z-libra-olive",
@@ -1383,7 +1416,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/libra-olive-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 780
     },
     {
      "id": "z-libra-maroon",
@@ -1396,7 +1430,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/libra-maroon-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 800
     }
    ]
   },
@@ -1413,7 +1448,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "شدّة وجاذبية",
    "desc_en": "Intense and magnetic. A celestial back print of the Scorpio constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "شدّة وجاذبية. طبعة سماوية كبيرة على الظهر لكوكبة العقرب وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 840,
+   "price": 780,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1445,7 +1480,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/scorpio-black-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 850
     },
     {
      "id": "z-scorpio-white",
@@ -1458,7 +1494,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/scorpio-white-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 830
     },
     {
      "id": "z-scorpio-blue",
@@ -1471,7 +1508,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/scorpio-blue-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 810
     },
     {
      "id": "z-scorpio-olive",
@@ -1484,7 +1522,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/scorpio-olive-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 780
     },
     {
      "id": "z-scorpio-maroon",
@@ -1497,7 +1536,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/scorpio-maroon-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 800
     }
    ]
   },
@@ -1514,7 +1554,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "روح حرّة باحثة",
    "desc_en": "The free-spirited seeker. A celestial back print of the Sagittarius constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "روح حرّة باحثة. طبعة سماوية كبيرة على الظهر لكوكبة القوس وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 800,
+   "price": 780,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1546,7 +1586,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/sagittarius-black-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 850
     },
     {
      "id": "z-sagittarius-white",
@@ -1559,7 +1600,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/sagittarius-white-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 830
     },
     {
      "id": "z-sagittarius-blue",
@@ -1572,7 +1614,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/sagittarius-blue-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 810
     },
     {
      "id": "z-sagittarius-olive",
@@ -1585,7 +1628,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/sagittarius-olive-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 780
     },
     {
      "id": "z-sagittarius-maroon",
@@ -1598,7 +1642,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/sagittarius-maroon-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 800
     }
    ]
   },
@@ -1647,7 +1692,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/capricorn-black-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 850
     },
     {
      "id": "z-capricorn-white",
@@ -1660,7 +1706,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/capricorn-white-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 830
     },
     {
      "id": "z-capricorn-blue",
@@ -1673,7 +1720,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/capricorn-blue-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 810
     },
     {
      "id": "z-capricorn-olive",
@@ -1686,7 +1734,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/capricorn-olive-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 780
     },
     {
      "id": "z-capricorn-maroon",
@@ -1699,7 +1748,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/capricorn-maroon-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 800
     }
    ]
   },
@@ -1716,7 +1766,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "تيّار الرؤية",
    "desc_en": "The visionary current. A celestial back print of the Aquarius constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "تيّار الرؤية. طبعة سماوية كبيرة على الظهر لكوكبة الدلو وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 820,
+   "price": 780,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1748,7 +1798,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/aquarius-black-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 850
     },
     {
      "id": "z-aquarius-white",
@@ -1761,7 +1812,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/aquarius-white-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 830
     },
     {
      "id": "z-aquarius-blue",
@@ -1774,7 +1826,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/aquarius-blue-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 810
     },
     {
      "id": "z-aquarius-olive",
@@ -1787,7 +1840,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/aquarius-olive-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 780
     },
     {
      "id": "z-aquarius-maroon",
@@ -1800,7 +1854,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/aquarius-maroon-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 800
     }
    ]
   },
@@ -1817,7 +1872,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "حالم الأعماق",
    "desc_en": "The deep-water dreamer. A celestial back print of the Pisces constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "حالم الأعماق. طبعة سماوية كبيرة على الظهر لكوكبة الحوت وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 790,
+   "price": 780,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1849,7 +1904,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/pisces-black-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 850
     },
     {
      "id": "z-pisces-white",
@@ -1862,7 +1918,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/pisces-white-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 830
     },
     {
      "id": "z-pisces-blue",
@@ -1875,7 +1932,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/pisces-blue-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 810
     },
     {
      "id": "z-pisces-olive",
@@ -1888,7 +1946,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/pisces-olive-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 780
     },
     {
      "id": "z-pisces-maroon",
@@ -1901,7 +1960,8 @@ window.NZ_DEFAULTS = {
       "images/zodiac/pisces-maroon-front.jpg"
      ],
      "track": false,
-     "stock": {}
+     "stock": {},
+     "price": 800
     }
    ]
   },

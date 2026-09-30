@@ -956,3 +956,36 @@ body.sb-on .gift-fab { transform: scale(0); }
   /* checkout: fewer distractions */
   .steps { display: none; }
 }
+
+/* ═════════════════════════ v2.5 — compact fit line + size popup ═════════════════════════ */
+.fit { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-height: 44px; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--line); background: color-mix(in srgb, var(--fg) 3%, transparent); font-size: .86rem; }
+.fit__tip { display: inline-flex; align-items: center; gap: 8px; color: var(--fg-2); }
+.fit__tip .ic { width: 16px; height: 16px; flex: none; }
+.fit__lbl { font: 700 .74rem var(--f-mono); background: var(--fg); color: var(--bg); padding: 3px 8px; border-radius: 6px; }
+.fit__m { display: inline-flex; align-items: baseline; gap: 5px; color: var(--fg-m); }
+.fit__m b { color: var(--fg); font: 700 .95rem var(--f-mono); }
+.fit__m + .fit__m::before { content: "·"; margin-inline-end: 3px; color: var(--fg-m); }
+.fit__u { font-size: .75rem; margin-inline-start: auto; }
+.fit__open { display: inline-flex; align-items: center; gap: 6px; }
+.fit__open .ic { width: 15px; height: 15px; }
+.modal__card--sg { width: min(640px, 100%); }
+.sgm { padding: 26px 22px 22px; display: grid; gap: 16px; }
+.sgm__t { margin: 0; font-size: 1.5rem; padding-inline-end: 40px; }
+.sgm__row { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 16px; align-items: center; }
+.sgm__art { border-radius: 12px; }
+.sgm__art svg { width: 94%; }
+.sgm .sg__legend { gap: 8px; }
+.sgm .sg__legend li { grid-template-columns: 24px 1fr; gap: 10px; }
+.sgm .sg__legend b.k { width: 24px; height: 24px; font-size: .7rem; }
+.sgm .sg__legend span { font-size: .82rem; }
+.sgm .sg__tbl table { min-width: 0; }
+.sgm .sg__tbl th, .sgm .sg__tbl td { padding: 9px 8px; }
+.sgm__foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: .72rem; }
+@media (max-width: 640px) {
+  .modal:has(.modal__card--sg) { align-items: end; padding: 0; }
+  .modal__card--sg { border-radius: 18px 18px 0 0; max-height: 88svh; }
+  .sgm { padding: 22px 16px 18px; gap: 14px; }
+  .sgm__row { grid-template-columns: 108px minmax(0, 1fr); gap: 12px; }
+  .sgm .sg__legend span { font-size: .76rem; }
+  .fit { font-size: .8rem; }
+}

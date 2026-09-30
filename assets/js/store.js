@@ -20,6 +20,7 @@
     moon: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
     home: '<path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-5h4v5"/>', grid: '<rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/>',
     star: '<path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/>',
+    ruler: '<path d="M3 16.5 16.5 3 21 7.5 7.5 21z"/><path d="m7 12.5 2 2M10 9.5l2 2M13 6.5l2 2"/>',
     cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M12 14h2M16 14h.5M8 17.5h2M12 17.5h2"/>',
     link: '<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/>',
     panel: '<rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M9 4v16M13 9h4M13 13h4"/>',
@@ -126,9 +127,10 @@
   }
 
   /* ─────────────────────────── product card ─────────────────────────── */
-  function priceHTML(p) {
-    if (N.isPre(p)) return `${money(p.price)}<small>${t('d.deposit', { pct: N.drop().depositPct })} ${money(N.deposit(p.price))}</small>`;
-    return `${p.compareAt && +p.compareAt > +p.price ? `<s>${money(p.compareAt, false)}</s>` : ''}${money(p.price)}`;
+  function priceHTML(p, v) {
+    const pr = N.priceOf(p, v);
+    if (N.isPre(p)) return `${money(pr)}<small>${t('d.deposit', { pct: N.drop().depositPct })} ${money(N.deposit(pr))}</small>`;
+    return `${p.compareAt && +p.compareAt > pr ? `<s>${money(p.compareAt, false)}</s>` : ''}${money(pr)}`;
   }
   function tagsHTML(p, v) {
     const out = [];
@@ -159,7 +161,7 @@
       <div class="pc__info">
         <a href="${href}" class="pc__t">${esc(title)}</a>
         ${L(p, 'sub') ? `<div class="pc__s">${esc(L(p, 'sub'))}</div>` : ''}
-        <div class="pc__meta"><div class="pc__p num">${priceHTML(p)}</div>
+        <div class="pc__meta"><div class="pc__p num">${priceHTML(p, v)}</div>
         ${multi ? `<div class="swatches" role="radiogroup">${p.variants.map(x => `<button class="sw sw--sm${x.id === v.id ? ' on' : ''}" style="--c:${esc(x.hex)}" data-sw="${esc(x.id)}" aria-label="${esc(N.colourName(x))}" title="${esc(N.colourName(x))}"></button>`).join('')}</div>` : ''}</div>
       </div>
     </article>`;
@@ -177,8 +179,8 @@
   }
   function sortList(list, how) {
     const a = list.slice();
-    if (how === 'low') a.sort((x, y) => x.price - y.price);
-    else if (how === 'high') a.sort((x, y) => y.price - x.price);
+    if (how === 'low') a.sort((x, y) => N.minPrice(x) - N.minPrice(y));
+    else if (how === 'high') a.sort((x, y) => N.minPrice(y) - N.minPrice(x));
     else if (how === 'best') a.sort((x, y) => (y.sales || 0) - (x.sales || 0));
     return a;
   }
@@ -377,7 +379,7 @@
       return q.split(/\s+/).every(w => hay.indexOf(w) > -1);
     });
     if (q) try { window.NZ_TRACK && NZ_TRACK.event('search', { q, n: hits.length }); } catch (e) { }
-    box.innerHTML = hits.length ? hits.slice(0, 20).map(p => { const v = p.variants[0]; return `<a href="#/products/${esc(p.handle)}" data-close><img src="${esc(v.images[0])}" alt="" loading="lazy"><span><b>${esc(N.title(p))}</b><br><small class="muted">${esc(L(p, 'sub'))}</small></span><span class="mono num">${money(p.price)}</span></a>`; }).join('')
+    box.innerHTML = hits.length ? hits.slice(0, 20).map(p => { const v = p.variants[0]; return `<a href="#/products/${esc(p.handle)}" data-close><img src="${esc(v.images[0])}" alt="" loading="lazy"><span><b>${esc(N.title(p))}</b><br><small class="muted">${esc(L(p, 'sub'))}</small></span><span class="mono num">${money(N.minPrice(p))}</span></a>`; }).join('')
       : `<p class="muted" style="padding:10px">${t('m.noResults', { q: esc(q) })}</p>`;
   }
 
@@ -661,7 +663,7 @@
     const p = N.product(handle);
     const col = p && N.collection(p.collection);
     if (!p || (p.status !== 'active' && !N.previewing()) || !col || (col.status !== 'active' && !N.previewing())) return view404(t('p.notFound'));
-    const v = N.variant(p, route.q.c);
+    const v = N.variant(p, route.q.c), vp = N.priceOf(p, v);
     const pre = N.isPre(p), d = N.drop(), sg = p.sign ? N.sign(p.sign) : null;
     pdp = { p, v, size: pdp.p && pdp.p.id === p.id ? pdp.size : null, cur: 0 };
     const imgs = v.images;
@@ -687,18 +689,19 @@
             <h1 class="disp buy__t">${esc(N.title(p))}</h1>
             ${ratingLine(p)}
             ${L(p, 'sub') ? `<p class="muted" style="margin:0">${esc(L(p, 'sub'))}</p>` : ''}
-            <div class="buy__p num">${pre ? `<span>${money(p.price)}</span><span class="dep">${t('d.deposit', { pct: d.depositPct })} · ${money(N.deposit(p.price))}</span>` : `${p.compareAt && +p.compareAt > +p.price ? `<s class="muted" style="font-weight:400">${money(p.compareAt)}</s>` : ''}<span>${money(p.price)}</span>`}</div>
-            ${pre ? `<p class="muted" style="margin:0;font-size:.9rem">${t('p.fullPrice', { price: money(p.price), rest: money(p.price - N.deposit(p.price)) })}</p>` : ''}
+            <div class="buy__p num">${pre ? `<span>${money(vp)}</span><span class="dep">${t('d.deposit', { pct: d.depositPct })} · ${money(N.deposit(vp))}</span>` : `${p.compareAt && +p.compareAt > +vp ? `<s class="muted" style="font-weight:400">${money(p.compareAt)}</s>` : ''}<span>${money(vp)}</span>`}</div>
+            ${pre ? `<p class="muted" style="margin:0;font-size:.9rem">${t('p.fullPrice', { price: money(vp), rest: money(vp - N.deposit(vp)) })}</p>` : ''}
           </div>
           ${p.variants.length > 1 ? `<div style="display:grid;gap:10px"><div class="buy__row"><span class="mono">${t('c.colour')} · <b>${esc(N.colourName(v))}</b></span></div>
             <div class="swatches">${p.variants.map(x => `<a class="sw${x.id === v.id ? ' on' : ''}" style="--c:${esc(x.hex)}" href="#/products/${esc(p.handle)}?c=${esc(x.color)}" aria-label="${esc(N.colourName(x))}" title="${esc(N.colourName(x))}" data-keep></a>`).join('')}</div></div>` : ''}
-          <div style="display:grid;gap:10px"><div class="buy__row"><span class="mono">${t('c.size')}</span><a class="mono link" href="#/size-guide">${t('p.sizeGuide')}</a></div>
+          <div style="display:grid;gap:10px"><div class="buy__row"><span class="mono">${t('c.size')}</span>${chartOf(p) !== 'none' ? `<button type="button" class="mono link fit__open" data-sgopen>${icon('ruler')}${t('p.fitOpen')}</button>` : `<a class="mono link" href="#/size-guide">${t('p.sizeGuide')}</a>`}</div>
             <div class="sizes" id="sizes">${(p.sizes || []).map(s => { const st = N.stockOf(v, s); return `<button class="sz${pdp.size === s ? ' on' : ''}" data-size="${esc(s)}"${!pre && st <= 0 ? ' disabled' : ''}>${esc(s)}</button>`; }).join('')}</div>
+            ${chartOf(p) !== 'none' ? `<div class="fit" id="fitBox">${fitHTML()}</div>` : ''}
             ${!pre && v.track && pdp.size && N.stockOf(v, pdp.size) <= 3 && N.stockOf(v, pdp.size) > 0 ? `<span class="mono" style="color:var(--danger)">${t('p.lowStock', { n: N.stockOf(v, pdp.size) })}</span>` : ''}
           </div>
           <div class="buy__ctas" id="buyCtas">
             ${N.soldOut(p, v) && !pre ? `<button class="btn btn--block" disabled>${t('c.soldOut')}</button>` : pre
-              ? `<button class="btn btn--signal btn--block" data-buy="reserve">${t('p.reserve', { amount: money(N.deposit(p.price)) })} ${arr()}</button>`
+              ? `<button class="btn btn--signal btn--block" data-buy="reserve">${t('p.reserve', { amount: money(N.deposit(vp)) })} ${arr()}</button>`
               : `<button class="btn btn--block" data-buy="add">${t('p.addToBag')} ${arr()}</button><button class="btn btn--line btn--block" data-buy="now">${t('p.buyNow')}</button>`}
             <a class="btn btn--line btn--block btn--wa" href="#" data-waorder>${icon('wa')} ${t('p.waOrder')}</a>
             <button class="btn btn--ghost" data-fav="${esc(p.id)}" style="justify-self:center">${icon('heart')} <span>${N.wish.has(p.id) ? t('p.saved') : t('p.save')}</span></button>
@@ -713,15 +716,14 @@
           </div>
         </div>
       </div>
-      ${chartOf(p) !== 'none' ? `<section class="pdp-sec" id="sizeFit">${sh(t('p.sizeFit'), LL({ en: 'Find your fit.', ar: 'اعرف مقاسك.' }), '', `<a class="btn btn--line btn--sm" href="#/size-guide">${t('p.fullGuide')} ${arr()}</a>`)}<div class="sg" id="pdpSg">${pdpSizeInner()}</div></section>` : ''}
       ${reviewsHTML(p)}
       ${others.length ? `<div style="padding-bottom:80px">${sh(p.sign ? t('p.other') : t('p.also'), '', '', railNav('pdpRail'))}<div class="rail" id="pdpRail">${cards(others.slice(0, 12), { color: p.sign ? v.color : '' }).join('')}</div></div>` : ''}
       </div>
       <div class="sticky-buy tone-light" id="stickyBuy" aria-hidden="true"><div class="sticky-buy__in">
         <img class="sticky-buy__img" src="${esc(imgs[0])}" alt="" width="90" height="120">
-        <div class="sticky-buy__t"><b>${esc(N.title(p))}</b><span class="mono muted num">${esc(N.colourName(v))} · ${pre ? t('d.deposit', { pct: d.depositPct }) + ' ' + money(N.deposit(p.price)) : money(p.price)}</span></div>
+        <div class="sticky-buy__t"><b>${esc(N.title(p))}</b><span class="mono muted num">${esc(N.colourName(v))} · ${pre ? t('d.deposit', { pct: d.depositPct }) + ' ' + money(N.deposit(vp)) : money(vp)}</span></div>
         ${N.soldOut(p, v) && !pre ? '' : `<div class="sticky-buy__sz">${(p.sizes || []).map(z => `<button class="sz sz--sm${pdp.size === z ? ' on' : ''}" data-size="${esc(z)}"${!pre && N.stockOf(v, z) <= 0 ? ' disabled' : ''}>${esc(z)}</button>`).join('')}</div>`}
-        ${N.soldOut(p, v) && !pre ? `<button class="btn" disabled>${t('c.soldOut')}</button>` : pre ? `<button class="btn btn--signal" data-buy="reserve">${t('p.reserve', { amount: money(N.deposit(p.price)) })} ${arr()}</button>` : `<button class="btn btn--signal" data-buy="add">${t('p.addToBag')} ${arr()}</button>`}
+        ${N.soldOut(p, v) && !pre ? `<button class="btn" disabled>${t('c.soldOut')}</button>` : pre ? `<button class="btn btn--signal" data-buy="reserve">${t('p.reserve', { amount: money(N.deposit(vp)) })} ${arr()}</button>` : `<button class="btn btn--signal" data-buy="add">${t('p.addToBag')} ${arr()}</button>`}
       </div></div>
       </section>`;
   }
@@ -767,9 +769,22 @@
     </section>`;
   }
   const chartOf = p => (p && p.sizeChart) || (p && p.collection === 'sweatpants' ? 'pants' : 'hoodie');
+  /* one line under the sizes: the chosen size's key measurements */
+  function fitHTML() {
+    const p = pdp.p; if (!p) return ''; const kind = chartOf(p); if (kind === 'none') return '';
+    const g = C().pages.sizeGuide || {}, rows = kind === 'pants' ? (g.pants || []) : (g.rows || []);
+    const row = pdp.size && rows.find(r => r.size === pdp.size), inch = sgState.unit === 'in';
+    if (!row) return `<span class="fit__tip">${icon('check')}${t('p.fitTip')}</span>`;
+    const cv = x => { const n = parseFloat(x); return isNaN(n) ? esc(x || '—') : inch ? (n / 2.54).toFixed(1) : String(n); };
+    return `<span class="fit__lbl">${esc(pdp.size)}</span>${sgCols(kind).slice(0, 3).map(c => `<span class="fit__m"><b class="num">${cv(row[c[0]])}</b>${esc(LL(c[2]))}</span>`).join('')}<span class="fit__u muted">${inch ? 'in' : LL({ en: 'cm', ar: 'سم' })}</span>`;
+  }
+  /* size popup: small drawing + legend side by side, then the table */
   function pdpSizeInner() {
     const p = pdp.p; if (!p) return ''; const kind = chartOf(p), g = C().pages.sizeGuide || {};
-    return `<div style="display:flex;justify-content:flex-end">${sgUnits()}</div>${sgCard(kind)}${sgTable(kind, pdp.size)}<p class="mono muted" style="margin:0;font-size:.78rem">${esc(L(g, 'note'))} · ${sgState.unit === 'in' ? 'IN' : 'CM'}</p>`;
+    return `<div class="sgm__row"><div class="sg__art sgm__art">${kind === 'pants' ? pantsSVG() : hoodieSVG()}</div>
+      <ul class="sg__legend">${sgCols(kind).map(c => `<li><b class="k">${c[1]}</b><span><strong>${esc(LL(c[2]))}</strong>${esc(LL(c[3]))}</span></li>`).join('')}</ul></div>
+      ${sgTable(kind, pdp.size)}
+      <div class="sgm__foot"><span class="mono muted">${esc(L(g, 'note'))}</span>${sgUnits()}</div>`;
   }
   function galLbl(i) { const p = pdp.p; if (!p) return ''; return p.sign ? (i === 0 ? t('c.backSide') : i === 1 ? t('c.front') : '') : ''; }
   function galAlt(i) { const { p, v } = pdp; return N.title(p) + ' — ' + N.colourName(v) + (galLbl(i) ? ' — ' + galLbl(i) : ''); }
@@ -1254,6 +1269,7 @@
       if (a.dataset.sw) {
         e.preventDefault(); const c = a.closest('.pc'); const p = N.product(c.dataset.pid), v = p.variants.find(x => x.id === a.dataset.sw); if (!v) return;
         c.dataset.vid = v.id; const im = $$('.pc__media img', c); im[0].src = v.images[0]; if (im[1] && v.images[1]) im[1].src = v.images[1];
+        const pe = $('.pc__p', c); if (pe) pe.innerHTML = priceHTML(p, v);
         $$('.pc__cover, .pc__t', c).forEach(l => { l.href = `#/products/${p.handle}?c=${encodeURIComponent(v.color)}`; });
         $$('[data-quick]', c).forEach(b => { const parts = b.dataset.quick.split('|'); parts[1] = v.id; b.dataset.quick = parts.join('|'); });
         $$('[data-sw]', c).forEach(b => b.classList.toggle('on', b === a)); return;
@@ -1265,7 +1281,7 @@
       }
       if (a.dataset.rail) { const nav = a.closest('[data-rail-for]'), rail = nav && $('#' + nav.dataset.railFor); if (rail) railStep(rail, +a.dataset.rail); return; }
       if (a.hasAttribute('data-waorder')) { e.preventDefault(); const { p, v } = pdp; if (!p) return; const pre = N.isPre(p);
-        const msg = t('p.waMsg') + '\n• ' + N.title(p) + ' — ' + N.colourName(v) + (pdp.size ? ' — ' + t('c.size') + ' ' + pdp.size : '') + '\n• ' + money(p.price) + (pre ? ' (' + t('d.deposit', { pct: N.drop().depositPct }) + ' ' + money(N.deposit(p.price)) + ')' : '') + '\n' + location.href;
+        const msg = t('p.waMsg') + '\n• ' + N.title(p) + ' — ' + N.colourName(v) + (pdp.size ? ' — ' + t('c.size') + ' ' + pdp.size : '') + '\n• ' + money(N.priceOf(p, v)) + (pre ? ' (' + t('d.deposit', { pct: N.drop().depositPct }) + ' ' + money(N.deposit(N.priceOf(p, v))) + ')' : '') + '\n' + location.href;
         try { window.NZ_TRACK && NZ_TRACK.event('whatsapp_order', { id: p.id }); } catch (x) { }
         window.open(N.wa(msg), '_blank', 'noopener'); return; }
       if (a.dataset.gal != null) { galShow(+a.dataset.gal); return; }
@@ -1273,8 +1289,9 @@
       if (a.hasAttribute('data-rvopen')) { const f = $('#rvForm'); if (f) { f.hidden = false; $('#rvDone').hidden = true; f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { const i = f.querySelector('[name="name"]'); if (i) i.focus({ preventScroll: true }); }, 500); } return; }
       if (a.hasAttribute('data-rvall')) { $$('.rv-more').forEach(x => x.classList.remove('rv-more')); a.remove(); return; }
       if (a.dataset.sg) { sgState.g = a.dataset.sg; const box = $('#sg'); if (box) box.innerHTML = sgInner(); return; }
-      if (a.dataset.sgu) { sgState.unit = a.dataset.sgu; const box = $('#sg'); if (box) box.innerHTML = sgInner(); const pb = $('#pdpSg'); if (pb) pb.innerHTML = pdpSizeInner(); return; }
-      if (a.dataset.size) { pdp.size = a.dataset.size; $$('[data-size]').forEach(b => b.classList.toggle('on', b.dataset.size === pdp.size)); $$('[data-szrow]').forEach(r => r.classList.toggle('on', r.dataset.szrow === pdp.size)); return; }
+      if (a.dataset.sgu) { sgState.unit = a.dataset.sgu; const box = $('#sg'); if (box) box.innerHTML = sgInner(); const pb = $('#pdpSg'); if (pb) pb.innerHTML = pdpSizeInner(); const fb = $('#fitBox'); if (fb) fb.innerHTML = fitHTML(); return; }
+      if (a.hasAttribute('data-sgopen')) { modal(`<div class="sgm"><h3 class="disp sgm__t">${t('p.sizeFit')}</h3><div id="pdpSg">${pdpSizeInner()}</div><a class="link mono" href="#/size-guide" data-close-modal>${t('p.fullGuide')} ${arr()}</a></div>`, 'modal__card--sg'); return; }
+      if (a.dataset.size) { pdp.size = a.dataset.size; const fb = $('#fitBox'); if (fb) fb.innerHTML = fitHTML(); $$('[data-size]').forEach(b => b.classList.toggle('on', b.dataset.size === pdp.size)); $$('[data-szrow]').forEach(r => r.classList.toggle('on', r.dataset.szrow === pdp.size)); return; }
       if (a.dataset.buy) { buy(a.dataset.buy); return; }
       if (a.dataset.dialc) { dialSelect(dialState.i, a.dataset.dialc); return; }
       if (a.dataset.scroll) { e.preventDefault(); const el = $(a.dataset.scroll); if (el) el.scrollIntoView({ behavior: 'smooth' }); return; }

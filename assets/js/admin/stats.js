@@ -262,7 +262,7 @@ window.NZS = (function () {
           const pre = !!(usePre && p.preorder);
           const ex = lines.find(l => l.vid === v2.id && l.size === size);
           if (ex) { ex.qty++; continue; }
-          lines.push({ pid: p.id, vid: v2.id, title_en: p.title_en, title_ar: p.title_ar, color_en: v2.color_en, color_ar: v2.color_ar, size, qty: 1, price: p.price, pre, deposit: pre ? Math.round(p.price * ((N.C.drop.depositPct || 20) / 100)) : null, img: v2.images[0], collection: p.collection, src: 'direct' });
+          lines.push({ pid: p.id, vid: v2.id, title_en: p.title_en, title_ar: p.title_ar, color_en: v2.color_en, color_ar: v2.color_ar, size, qty: 1, price: N.priceOf(p, v2), pre, deposit: pre ? Math.round(N.priceOf(p, v2) * ((N.C.drop.depositPct || 20) / 100)) : null, img: v2.images[0], collection: p.collection, src: 'direct' });
         }
         const sub = lines.reduce((a, l) => a + l.price * l.qty, 0);
         const promo = r() < .18 ? 'NASIJ10' : '';
