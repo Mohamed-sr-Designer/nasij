@@ -237,7 +237,7 @@
     render() {
       const pb = k => `settings.payments.${k}`;
       return `<div class="page page--narrow">${ph(A('طرق الدفع', 'Payment methods'))}
-        ${card(A('الدفع عند الاستلام', 'Cash on delivery'), `<div style="display:grid;gap:12px">${F.bool(pb('cod') + '.on', A('مفعّل', 'Enabled'), { hint: A('مش بيظهر مع الحجز المسبق — العربون لازم يتحوّل', 'Hidden for pre-orders — deposits must be transferred') })}${F.pair(pb('cod'), A('الاسم', 'Label'))}</div>`)}
+        ${card(A('الدفع عند الاستلام', 'Cash on delivery'), `<div style="display:grid;gap:12px">${F.bool(pb('cod') + '.on', A('مفعّل', 'Enabled'), { hint: A('متاح لكل الطلبات، والحجز كمان بيتدفع كله للمندوب', 'Available for every order, pre-orders included (paid in full to the courier)') })}${F.pair(pb('cod'), A('الاسم', 'Label'))}</div>`)}
         ${card(A('إنستاباي', 'InstaPay'), `<div style="display:grid;gap:12px">${F.bool(pb('instapay') + '.on', A('مفعّل', 'Enabled'))}${F.text(pb('instapay') + '.handle', A('عنوان إنستاباي', 'InstaPay address'), { dir: 'ltr' })}${F.pair(pb('instapay'), A('الاسم', 'Label'))}</div>`)}
         ${card(A('فودافون كاش', 'Vodafone Cash'), `<div style="display:grid;gap:12px">${F.bool(pb('vodafone') + '.on', A('مفعّل', 'Enabled'))}${F.text(pb('vodafone') + '.number', A('رقم المحفظة', 'Wallet number'), { dir: 'ltr' })}${F.pair(pb('vodafone'), A('الاسم', 'Label'))}</div>`)}
         <div class="banner">${icon('card')}<div class="grow"><b>${A('الدفع بالكارت أونلاين', 'Online card payments')}</b><span class="small">${A('ممكن نضيف Paymob أو Fawry لما يبقى فيه سيرفر للموقع.', 'Paymob or Fawry can be added once the store has a server.')}</span></div></div></div>`;

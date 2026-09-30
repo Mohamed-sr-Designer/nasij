@@ -908,7 +908,7 @@
     if (k === 'vodafone') return LL({ en: 'Send to ', ar: 'ابعت على ' }) + (p.number || '');
     return '';
   }
-  function placeLabel(T) { return T.hasPre ? t('k.placeDeposit', { amount: money(T.dueNow) }) : t('k.place'); }
+  function placeLabel(T) { return T.hasPre && T.dueNow > 0 ? t('k.placeDeposit', { amount: money(T.dueNow) }) : t('k.place'); }
   function coSummary() {
     const T = N.cart.totals(co.zone, co.payment);
     return `<div class="drawer__h" style="min-height:0;padding:16px 18px"><b>${t('k.summary')}</b><span class="mono muted">${T.count} ${T.count === 1 ? t('c.item') : t('c.items')}</span></div>
@@ -919,10 +919,10 @@
         ${T.discount ? `<div class="sum__r"><span>${t('b.discount')} · ${esc(T.promo.code)}</span><b class="num">−${money(T.discount)}</b></div>` : ''}
         <div class="sum__r"><span>${t('b.delivery')}</span><b class="num">${T.delivery == null ? `<span class="muted" style="font-family:var(--f-body);font-weight:400">${t('b.calcLater')}</span>` : T.delivery === 0 ? t('b.freeShip') : money(T.delivery)}</b></div>
         <div class="sum__r big"><span>${t('b.total')}</span><b class="num">${money(T.total)}</b></div>
-        ${T.hasPre ? `<div class="sum__r hl"><span>${t('b.dueNow')}</span><b class="num">${money(T.dueNow)}</b></div><div class="sum__r"><span>${t('b.balance')}</span><b class="num">${money(T.balance)}</b></div>` : ''}
+        ${T.hasPre && T.dueNow > 0 ? `<div class="sum__r hl"><span>${t('b.dueNow')}</span><b class="num">${money(T.dueNow)}</b></div><div class="sum__r"><span>${t('b.balance')}</span><b class="num">${money(T.balance)}</b></div>` : ''}
       </div>`;
   }
-  function coBarHTML() { const T = N.cart.totals(co.zone, co.payment); return `<div style="min-width:0"><span class="mono muted" style="display:block;font-size:.7rem">${T.hasPre ? t('b.dueNow') : t('b.total')}</span><b class="num">${money(T.hasPre ? T.dueNow : T.total)}</b></div><button class="btn btn--signal" type="submit" form="coForm">${T.hasPre ? t('c.preorder') : t('k.place')} ${arr()}</button>`; }
+  function coBarHTML() { const T = N.cart.totals(co.zone, co.payment), dep = T.hasPre && T.dueNow > 0; return `<div style="min-width:0"><span class="mono muted" style="display:block;font-size:.7rem">${dep ? t('b.dueNow') : t('b.total')}</span><b class="num">${money(dep ? T.dueNow : T.total)}</b></div><button class="btn btn--signal" type="submit" form="coForm">${dep ? t('c.preorder') : t('k.place')} ${arr()}</button>`; }
   function refreshCheckout() {
     const s = $('#coSide'); if (s) s.innerHTML = coSummary();
     const lbl = `${placeLabel(N.cart.totals(co.zone, co.payment))} ${arr()}`;

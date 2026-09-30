@@ -406,8 +406,8 @@ window.NZ_DEFAULTS = {
      },
      {
       "icon": "cash",
-      "en": "Cash on delivery for ready pieces",
-      "ar": "الدفع عند الاستلام للقطع الجاهزة"
+      "en": "Cash on delivery available",
+      "ar": "الدفع عند الاستلام متاح"
      },
      {
       "icon": "shield",
