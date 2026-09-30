@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'NASIJ_VER', '2.2.0' );
+define( 'NASIJ_VER', '2.6.0' );
 define( 'NASIJ_DB_VER', '2' );
 
 /* ─────────────────────────── access ─────────────────────────── */
