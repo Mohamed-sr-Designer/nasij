@@ -90,7 +90,7 @@ window.NZ = (function () {
     'c.continue': ['Continue shopping', 'كمّل تسوّق'], 'c.remove': ['Remove', 'إزالة'], 'c.edit': ['Edit', 'تعديل'],
     'c.whatsapp': ['WhatsApp us', 'كلّمنا واتساب'], 'c.readMore': ['Read more', 'اقرأ أكتر'],
     // product
-    'p.addToBag': ['Add to bag', 'أضف للشنطة'], 'p.buyNow': ['Buy it now', 'اشتري دلوقتي'], 'p.reserve': ['Reserve · {amount} deposit', 'احجز · عربون {amount}'],
+    'p.addToBag': ['Add to bag', 'أضف للشنطة'], 'p.waOrder': ['Order on WhatsApp', 'اطلب على واتساب'], 'p.waMsg': ['Hi NASIJ 👋 I’d like to order:', 'أهلاً نسيج 👋 عندي طلب:'], 'p.buyNow': ['Buy it now', 'اشتري دلوقتي'], 'p.reserve': ['Reserve · {amount} deposit', 'احجز · عربون {amount}'],
     'p.pickSize': ['Pick a size', 'اختار المقاس'], 'p.sizeGuide': ['Size guide', 'دليل المقاسات'], 'p.added': ['Added to your bag', 'اتضاف للشنطة'],
     'p.reserved': ['Reserved — deposit added to your bag', 'اتحجز — العربون اتضاف للشنطة'],
     'p.details': ['Details', 'التفاصيل'], 'p.fabric': ['Fabric & care', 'الخامة والعناية'], 'p.delivery': ['Delivery & returns', 'التوصيل والاسترجاع'],

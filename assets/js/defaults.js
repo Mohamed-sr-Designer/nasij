@@ -1,6 +1,6 @@
 /* NASIJ — default content. Generated; the dashboard publishes overrides as content.json. */
 window.NZ_DEFAULTS = {
- "v": 3,
+ "v": 4,
  "settings": {
   "name_en": "NASIJ",
   "name_ar": "نسيج",
@@ -39,7 +39,7 @@ window.NZ_DEFAULTS = {
   "popup": {
    "on": true,
    "code": "NASIJ10",
-   "delay": 12,
+   "delay": 35,
    "title_en": "10% off your first piece",
    "title_ar": "خصم ١٠٪ على أول قطعة",
    "text_en": "Use the code at checkout. One per customer.",
@@ -266,7 +266,7 @@ window.NZ_DEFAULTS = {
      ]
     }
    ],
-   "freeOver": 3000,
+   "freeOver": 1500,
    "eta_en": "Ready pieces arrive in 1–3 working days. Pre-orders ship after the drop date.",
    "eta_ar": "القطع الجاهزة بتوصل خلال ١–٣ أيام عمل. الحجوزات بتتشحن بعد ميعاد الدروب."
   },
@@ -384,21 +384,37 @@ window.NZ_DEFAULTS = {
     "text_ar": "١٢ هودي للأبراج بـ٥ ألوان — قطن مصري تقيل وبرجك مطبوع كبير على الضهر. احجز برجك قبل الدروب.",
     "cta_en": "Reserve your sign",
     "cta_ar": "احجز برجك",
-    "to": "#/drops",
+    "to": "#/collections/zodiac",
     "cta2_en": "Shop sweatpants",
     "cta2_ar": "تسوّق البناطيل",
     "to2": "#/collections/sweatpants"
    },
    {
-    "id": "dial",
-    "type": "dial",
+    "id": "trust",
+    "type": "trust",
     "on": true,
-    "kicker_en": "Find your sign",
-    "kicker_ar": "اعرف برجك",
-    "title_en": "Find your sign.",
-    "title_ar": "اعرف برجك.",
-    "text_en": "Turn the dial or enter your birthday — we’ll pull up your hoodie in every colourway.",
-    "text_ar": "لفّ الدائرة أو اكتب تاريخ ميلادك — وهنطلعلك الهودي بتاعك بكل الألوان."
+    "items": [
+     {
+      "icon": "truck",
+      "en": "Delivered in 1–3 days · Cairo & Giza",
+      "ar": "توصيل خلال ١–٣ أيام · القاهرة والجيزة"
+     },
+     {
+      "icon": "swap",
+      "en": "Free replacement if it arrives damaged",
+      "ar": "تبديل مجاني لو وصلت فيها عيب"
+     },
+     {
+      "icon": "cash",
+      "en": "Cash on delivery for ready pieces",
+      "ar": "الدفع عند الاستلام للقطع الجاهزة"
+     },
+     {
+      "icon": "shield",
+      "en": "Heavyweight 320gsm Egyptian cotton",
+      "ar": "قطن مصري تقيل ٣٢٠ جم"
+     }
+    ]
    },
    {
     "id": "drop",
@@ -431,6 +447,17 @@ window.NZ_DEFAULTS = {
     "kicker_ar": "الأكثر طلباً",
     "title_en": "Best sellers",
     "title_ar": "الأكثر مبيعاً"
+   },
+   {
+    "id": "dial",
+    "type": "dial",
+    "on": true,
+    "kicker_en": "Find your sign",
+    "kicker_ar": "اعرف برجك",
+    "title_en": "Find your sign.",
+    "title_ar": "اعرف برجك.",
+    "text_en": "Turn the dial or enter your birthday — we’ll pull up your hoodie in every colourway.",
+    "text_ar": "لفّ الدائرة أو اكتب تاريخ ميلادك — وهنطلعلك الهودي بتاعك بكل الألوان."
    },
    {
     "id": "story",
@@ -679,7 +706,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "شرارة الريادة",
    "desc_en": "The trailblazer’s spark. A celestial back print of the Aries constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "شرارة الريادة. طبعة سماوية كبيرة على الظهر لكوكبة الحمل وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 1150,
+   "price": 850,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -780,7 +807,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "ثبات وأصالة",
    "desc_en": "Grounded and steadfast. A celestial back print of the Taurus constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "ثبات وأصالة. طبعة سماوية كبيرة على الظهر لكوكبة الثور وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 1150,
+   "price": 820,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -881,7 +908,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "عقلان وروح واحدة",
    "desc_en": "Two minds, one soul. A celestial back print of the Gemini constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "عقلان وروح واحدة. طبعة سماوية كبيرة على الظهر لكوكبة الجوزاء وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 1150,
+   "price": 800,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -982,7 +1009,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "على إيقاع القمر",
    "desc_en": "Ruled by the moon’s tide. A celestial back print of the Cancer constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "على إيقاع القمر. طبعة سماوية كبيرة على الظهر لكوكبة السرطان وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 1150,
+   "price": 790,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1083,7 +1110,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "ملكية وتألّق",
    "desc_en": "Radiant and regal. A celestial back print of the Leo constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "ملكية وتألّق. طبعة سماوية كبيرة على الظهر لكوكبة الأسد وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 1150,
+   "price": 850,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1184,7 +1211,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "دقّة وصفاء",
    "desc_en": "Precise and earthy. A celestial back print of the Virgo constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "دقّة وصفاء. طبعة سماوية كبيرة على الظهر لكوكبة العذراء وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 1150,
+   "price": 810,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1285,7 +1312,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "اتزان وانسجام",
    "desc_en": "Poised and in balance. A celestial back print of the Libra constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "اتزان وانسجام. طبعة سماوية كبيرة على الظهر لكوكبة الميزان وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 1150,
+   "price": 830,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1386,7 +1413,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "شدّة وجاذبية",
    "desc_en": "Intense and magnetic. A celestial back print of the Scorpio constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "شدّة وجاذبية. طبعة سماوية كبيرة على الظهر لكوكبة العقرب وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 1150,
+   "price": 840,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1487,7 +1514,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "روح حرّة باحثة",
    "desc_en": "The free-spirited seeker. A celestial back print of the Sagittarius constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "روح حرّة باحثة. طبعة سماوية كبيرة على الظهر لكوكبة القوس وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 1150,
+   "price": 800,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1588,7 +1615,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "انضباط نحو القمّة",
    "desc_en": "Built for the summit. A celestial back print of the Capricorn constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "انضباط نحو القمّة. طبعة سماوية كبيرة على الظهر لكوكبة الجدي وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 1150,
+   "price": 780,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1689,7 +1716,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "تيّار الرؤية",
    "desc_en": "The visionary current. A celestial back print of the Aquarius constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "تيّار الرؤية. طبعة سماوية كبيرة على الظهر لكوكبة الدلو وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 1150,
+   "price": 820,
    "compareAt": null,
    "cost": null,
    "sizes": [
@@ -1790,7 +1817,7 @@ window.NZ_DEFAULTS = {
    "sub_ar": "حالم الأعماق",
    "desc_en": "The deep-water dreamer. A celestial back print of the Pisces constellation with a small chest emblem on the front. Heavyweight 320gsm brushed cotton, oversized unisex fit, ribbed cuffs and hem. Designed and made in Egypt.",
    "desc_ar": "حالم الأعماق. طبعة سماوية كبيرة على الظهر لكوكبة الحوت وإمبلم صغير على الصدر. قطن مكرمش تقيل ٣٢٠ جم، قصّة أوفرسايز يونيسكس، وأساور وحاشية ريب. تصميم وتصنيع مصري.",
-   "price": 1150,
+   "price": 790,
    "compareAt": null,
    "cost": null,
    "sizes": [

@@ -902,3 +902,57 @@ body.sb-on .gift-fab { transform: scale(0); }
   .rail img { -webkit-user-drag: none; user-select: none; }
 }
 @media (max-width: 640px) { .rail-nav { display: none; } }
+
+/* ═════════════════════════ v2.4 — CRO + mobile pass ═════════════════════════ */
+/* trust strip under the hero */
+.trust { border-bottom: 1px solid var(--line); }
+.trust__in { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.trust__i { display: flex; align-items: center; gap: 12px; padding: 18px 16px; font-size: .88rem; font-weight: 600; line-height: 1.35; border-inline-start: 1px solid var(--line); }
+.trust__i:first-child { border-inline-start: 0; }
+.trust__i .ic { width: 24px; height: 24px; flex: none; }
+.btn--wa .ic { width: 18px; height: 18px; }
+@media (max-width: 900px) {
+  .trust__in { grid-template-columns: 1fr 1fr; padding-inline: 0; }
+  .trust__i { padding: 13px 12px; font-size: .8rem; gap: 9px; border-top: 1px solid var(--line); }
+  .trust__i:nth-child(odd) { border-inline-start: 0; }
+  .trust__i:nth-child(-n+2) { border-top: 0; }
+  .trust__i .ic { width: 20px; height: 20px; }
+}
+
+/* phones: image first, words below it — the headline never sits on the models' faces */
+@media (max-width: 640px) {
+  .hero { display: block; min-height: 0; }
+  .hero__img { position: relative; height: 60svh; min-height: 360px; max-height: 540px; }
+  .hero__img img { object-position: 44% 28%; }
+  .hero__img::after, [dir="rtl"] .hero__img::after { background: linear-gradient(180deg, rgba(8,8,11,.5) 0%, rgba(8,8,11,0) 22%, rgba(8,8,11,0) 58%, var(--night) 100%); }
+  .hero .chart-lines, .hero__cross { display: none; }
+  .hero__coords { font-size: .58rem; }
+  .hero__body { margin-top: -84px; padding-bottom: 28px; gap: 18px; }
+  .hero .hero__title { font-size: 2.3rem; margin: 10px 0 12px; }
+  .hero .lead { font-size: .95rem; line-height: 1.6; }
+  .hero__cta { margin-top: 18px; }
+  .hero__cta .btn { flex: 1 1 0; padding: 0 .9em; }
+  .tcard { padding: 14px; gap: 12px; border-radius: 14px; }
+  .tcd__n { font-size: 1.75rem; }
+  .tcd__c + .tcd__c::before { font-size: 1.45rem; }
+  .tcard__glyphs { display: none; }
+  /* the hero already shows the countdown — don't repeat it right below */
+  #drop [data-dropbar] { display: none !important; }
+  /* two cards per screen instead of one giant card */
+  .rail { grid-auto-columns: 46%; gap: 10px; }
+  .sec { padding-block: 44px; }
+  .sh { margin-bottom: 20px; }
+  .sh .h2 { font-size: 1.85rem; }
+  .gift-fab { display: none; }
+  /* product page: size section stays compact */
+  .pdp-sec { padding-block: 34px; gap: 16px; }
+  .pdp-sec .sg__art { width: 100%; max-width: 240px; margin-inline: auto; }
+  .pdp-sec .sg__card { padding: 14px; gap: 14px; }
+  .pdp-sec .sg__card .lead { font-size: .9rem; }
+  .sg__legend li { grid-template-columns: 26px 1fr; gap: 10px; }
+  .sg__legend b.k { width: 26px; height: 26px; }
+  .sg__tbl th, .sg__tbl td { padding: 11px 10px; }
+  .buy { gap: 18px; }
+  /* checkout: fewer distractions */
+  .steps { display: none; }
+}

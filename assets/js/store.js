@@ -31,7 +31,9 @@
     chev: '<path d="m6 9 6 6 6-6"/>', user: '<circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
     upload: '<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/>',
     truck: '<path d="M3 6h11v10H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>',
-    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>', orbit: '<circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-25 12 12)"/>',
+    clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    swap: '<path d="M4 8h13l-3.5-3.5M20 16H7l3.5 3.5"/>', cash: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6.5 9.5v.01M17.5 14.5v.01"/>',
+    shield: '<path d="M12 3.5 19 6v5.5c0 4.3-3 7.6-7 9-4-1.4-7-4.7-7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/>', orbit: '<circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-25 12 12)"/>',
     copy: '<rect x="8" y="8" width="12" height="12" rx="1"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>'
   };
   const icon = (n, cls) => `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true">${IC[n] || ''}</svg>`;
@@ -486,6 +488,11 @@
         <div style="display:grid;gap:18px;justify-items:start"><p class="lead" style="color:rgba(11,11,13,.8)">${esc(L(s, 'text'))}</p><a class="btn" href="${esc(s.to || '#/custom')}">${esc(L(s, 'cta'))} ${arr()}</a></div>
       </div></div></section>`;
     },
+    trust(s) {
+      const items = (s.items || []).filter(x => x && (x.en || x.ar));
+      if (!items.length) return '';
+      return `<section class="trust tone-light" aria-label="${esc(LL({ en: 'Why NASIJ', ar: 'ليه نسيج' }))}"><div class="wrap trust__in">${items.map(x => `<div class="trust__i">${icon(x.icon || 'check')}<span>${esc(LL(x))}</span></div>`).join('')}</div></section>`;
+    },
     faq(s) {
       const items = (C().pages.faq || []).slice(0, s.limit || 5);
       if (!items.length) return '';
@@ -693,6 +700,7 @@
             ${N.soldOut(p, v) && !pre ? `<button class="btn btn--block" disabled>${t('c.soldOut')}</button>` : pre
               ? `<button class="btn btn--signal btn--block" data-buy="reserve">${t('p.reserve', { amount: money(N.deposit(p.price)) })} ${arr()}</button>`
               : `<button class="btn btn--block" data-buy="add">${t('p.addToBag')} ${arr()}</button><button class="btn btn--line btn--block" data-buy="now">${t('p.buyNow')}</button>`}
+            <a class="btn btn--line btn--block btn--wa" href="#" data-waorder>${icon('wa')} ${t('p.waOrder')}</a>
             <button class="btn btn--ghost" data-fav="${esc(p.id)}" style="justify-self:center">${icon('heart')} <span>${N.wish.has(p.id) ? t('p.saved') : t('p.save')}</span></button>
           </div>
           <div class="buy__note">${icon('truck')}<span>${pre ? t('p.shipsAfter', { date: N.date(d.date) }) : t('p.inStockCairo')}</span></div>
@@ -783,7 +791,7 @@
   function mountProduct() {
     const ctas = $('#buyCtas'), sb = $('#stickyBuy');
     if (ctas && sb && 'IntersectionObserver' in window) {
-      const io = new IntersectionObserver(es => es.forEach(e => { const on = !e.isIntersecting && e.boundingClientRect.top < 0; sb.classList.toggle('on', on); sb.setAttribute('aria-hidden', on ? 'false' : 'true'); document.body.classList.toggle('sb-on', on); }));
+      const io = new IntersectionObserver(es => es.forEach(e => { const on = !e.isIntersecting; sb.classList.toggle('on', on); sb.setAttribute('aria-hidden', on ? 'false' : 'true'); document.body.classList.toggle('sb-on', on); }));
       io.observe(ctas); onceTimers.push(() => { io.disconnect(); document.body.classList.remove('sb-on'); });
     }
     const rf = $('#rvForm');
@@ -1256,6 +1264,10 @@
         return;
       }
       if (a.dataset.rail) { const nav = a.closest('[data-rail-for]'), rail = nav && $('#' + nav.dataset.railFor); if (rail) railStep(rail, +a.dataset.rail); return; }
+      if (a.hasAttribute('data-waorder')) { e.preventDefault(); const { p, v } = pdp; if (!p) return; const pre = N.isPre(p);
+        const msg = t('p.waMsg') + '\n• ' + N.title(p) + ' — ' + N.colourName(v) + (pdp.size ? ' — ' + t('c.size') + ' ' + pdp.size : '') + '\n• ' + money(p.price) + (pre ? ' (' + t('d.deposit', { pct: N.drop().depositPct }) + ' ' + money(N.deposit(p.price)) + ')' : '') + '\n' + location.href;
+        try { window.NZ_TRACK && NZ_TRACK.event('whatsapp_order', { id: p.id }); } catch (x) { }
+        window.open(N.wa(msg), '_blank', 'noopener'); return; }
       if (a.dataset.gal != null) { galShow(+a.dataset.gal); return; }
       if (a.hasAttribute('data-copylink')) { copyText(location.href); toast(t('p.linkCopied')); return; }
       if (a.hasAttribute('data-rvopen')) { const f = $('#rvForm'); if (f) { f.hidden = false; $('#rvDone').hidden = true; f.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { const i = f.querySelector('[name="name"]'); if (i) i.focus({ preventScroll: true }); }, 500); } return; }
@@ -1311,9 +1323,9 @@
     N.initLang();
     boot2(); bind();
     const ld = $('#loader');
-    if (ld) setTimeout(() => { ld.classList.add('off'); setTimeout(() => ld.remove(), 900); }, Math.max(0, 1100 - performance.now()));
+    if (ld) setTimeout(() => { ld.classList.add('off'); setTimeout(() => ld.remove(), 900); }, Math.max(0, 300 - performance.now()));
     const p = S().popup || {};
-    if (p.on) setTimeout(() => { if (!$('#modal').classList.contains('on') && !/^\/(checkout|order)/.test(route.path)) popup(); }, (+p.delay || 12) * 1000);
+    if (p.on) setTimeout(() => { if (!$('#modal').classList.contains('on') && !openD && !/^\/(checkout|order|products|custom|size-guide)/.test(route.path)) popup(); }, (+p.delay || 12) * 1000);
     else if (N.read(N.LS.popup, {}).seen) { /* nothing */ }
   }
   window.NZ_STORE = { render, toast, openDrawer };
