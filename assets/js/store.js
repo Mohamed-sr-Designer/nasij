@@ -872,7 +872,7 @@
     if (!T0.rows.length) return `<section class="sec tone-light"><div class="wrap"><div class="empty"><div class="big">${glyph('♒')}</div><p>${t('k.empty')}</p><a class="btn" href="#/shop">${t('c.shopNow')} ${arr()}</a></div></div></section>`;
     const pf = N.profile(), s = S(), zones = (s.shipping.zones || []).filter(z => z.on !== false);
     if (!co.zone) co.zone = pf.zone || '';
-    const pays = Object.entries(s.payments || {}).filter(([, p]) => p && p.on).filter(([k]) => !(T0.hasPre && k === 'cod'));
+    const pays = Object.entries(s.payments || {}).filter(([, p]) => p && p.on);
     if (!co.payment || !pays.some(([k]) => k === co.payment)) co.payment = pays[0] ? pays[0][0] : '';
     const zone = zones.find(z => z.id === co.zone);
     return `<section class="tone-light"><div class="wrap">
@@ -896,9 +896,9 @@
             ${T0.hasPre ? `<div class="pre-note">${icon('clock')}<span>${esc(L(N.drop(), 'terms').replace(/\{days\}/g, N.drop().cancelDays))}</span></div><label class="check"><input type="checkbox" name="agree" required><span>${t('k.agree')}</span></label>` : ''}
           </div>
           <p class="err" id="coErr" hidden></p>
-          <div class="co__block" style="border:0;padding-top:6px"><button class="btn btn--signal btn--block" type="submit" id="coBtn">${placeLabel(N.cart.totals(co.zone))} ${arr()}</button><p class="muted" style="margin:0;text-align:center;font-size:.86rem">${t('k.secure')}</p></div>
+          <div class="co__block" style="border:0;padding-top:6px"><button class="btn btn--signal btn--block" type="submit" id="coBtn">${placeLabel(N.cart.totals(co.zone, co.payment))} ${arr()}</button><p class="muted" style="margin:0;text-align:center;font-size:.86rem">${t('k.secure')}</p></div>
         </form>
-        <aside class="co__side"><div id="coSide">${coSummary()}</div><div class="co__go"><button class="btn btn--signal btn--block" type="submit" form="coForm" data-cogo>${placeLabel(N.cart.totals(co.zone))} ${arr()}</button></div></aside>
+        <aside class="co__side"><div id="coSide">${coSummary()}</div><div class="co__go"><button class="btn btn--signal btn--block" type="submit" form="coForm" data-cogo>${placeLabel(N.cart.totals(co.zone, co.payment))} ${arr()}</button></div></aside>
       </div></div>
       <div class="co-bar tone-light" id="coBar">${coBarHTML()}</div></section>`;
   }
@@ -910,7 +910,7 @@
   }
   function placeLabel(T) { return T.hasPre ? t('k.placeDeposit', { amount: money(T.dueNow) }) : t('k.place'); }
   function coSummary() {
-    const T = N.cart.totals(co.zone);
+    const T = N.cart.totals(co.zone, co.payment);
     return `<div class="drawer__h" style="min-height:0;padding:16px 18px"><b>${t('k.summary')}</b><span class="mono muted">${T.count} ${T.count === 1 ? t('c.item') : t('c.items')}</span></div>
       ${T.rows.map(r => `<div class="mini"><div class="mini__img"><img src="${esc(r.v.images[0])}" alt=""><i>${r.l.qty}</i></div><div><b style="font-size:.92rem">${esc(N.title(r.p))}</b><div class="muted" style="font-size:.82rem">${esc(N.colourName(r.v))} · ${esc(r.l.size)}${r.l.pre ? ' · ' + t('c.preorder') : ''}</div></div><span class="mono num" style="font-size:.85rem">${money(r.lineNow)}</span></div>`).join('')}
       <div class="sum">
@@ -922,10 +922,10 @@
         ${T.hasPre ? `<div class="sum__r hl"><span>${t('b.dueNow')}</span><b class="num">${money(T.dueNow)}</b></div><div class="sum__r"><span>${t('b.balance')}</span><b class="num">${money(T.balance)}</b></div>` : ''}
       </div>`;
   }
-  function coBarHTML() { const T = N.cart.totals(co.zone); return `<div style="min-width:0"><span class="mono muted" style="display:block;font-size:.7rem">${T.hasPre ? t('b.dueNow') : t('b.total')}</span><b class="num">${money(T.hasPre ? T.dueNow : T.total)}</b></div><button class="btn btn--signal" type="submit" form="coForm">${T.hasPre ? t('c.preorder') : t('k.place')} ${arr()}</button>`; }
+  function coBarHTML() { const T = N.cart.totals(co.zone, co.payment); return `<div style="min-width:0"><span class="mono muted" style="display:block;font-size:.7rem">${T.hasPre ? t('b.dueNow') : t('b.total')}</span><b class="num">${money(T.hasPre ? T.dueNow : T.total)}</b></div><button class="btn btn--signal" type="submit" form="coForm">${T.hasPre ? t('c.preorder') : t('k.place')} ${arr()}</button>`; }
   function refreshCheckout() {
     const s = $('#coSide'); if (s) s.innerHTML = coSummary();
-    const lbl = `${placeLabel(N.cart.totals(co.zone))} ${arr()}`;
+    const lbl = `${placeLabel(N.cart.totals(co.zone, co.payment))} ${arr()}`;
     const b = $('#coBtn'); if (b) b.innerHTML = lbl; const g = $('[data-cogo]'); if (g) g.innerHTML = lbl;
     const bar = $('#coBar'); if (bar) bar.innerHTML = coBarHTML();
   }
@@ -1319,7 +1319,7 @@
       if (el.matches('[data-sort]')) { const q = Object.assign({}, route.q, { sort: el.value }); location.hash = '#' + route.path + '?' + new URLSearchParams(q).toString(); return; }
       if (el.form && el.form.id === 'coForm') {
         if (el.name === 'zone') { co.zone = el.value; const z = (S().shipping.zones || []).find(x => x.id === el.value); const ds = el.form.district; ds.innerHTML = `<option value="">${t('k.choose')}</option>` + (z ? z.districts.map(x => `<option value="${esc(x.id)}">${esc(LL(x))}</option>`).join('') : ''); refreshCheckout(); }
-        if (el.name === 'payment') { co.payment = el.value; $$('.opt', el.form).forEach(o => o.classList.toggle('on', o.contains(el))); }
+        if (el.name === 'payment') { co.payment = el.value; $$('.opt', el.form).forEach(o => o.classList.toggle('on', o.contains(el))); refreshCheckout(); }
       }
     });
     document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeModal(); } });

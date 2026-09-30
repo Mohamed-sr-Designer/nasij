@@ -268,7 +268,7 @@ window.NZ = (function () {
     remove(key) { cart.save(cart.lines().filter(l => l.key !== key)); },
     clear() { cart.save([]); write(LS.promo, null); },
     /* every money figure the bag / checkout shows */
-    totals(zoneId) {
+    totals(zoneId, payment) {
       const lines = cart.lines();
       let full = 0, now = 0, merch = 0;
       const rows = lines.map(l => {
@@ -292,7 +292,7 @@ window.NZ = (function () {
       // the discount is spread over the whole order, so a pre-order deposit
       // stays exactly {depositPct}% of what the customer will actually pay
       const ratio = full ? Math.max(0, full - discount) / full : 1;
-      const dueNow = Math.round(now * ratio) + deliveryNow;
+      const dueNow = payment === 'cod' ? 0 : Math.round(now * ratio) + deliveryNow; // cash on delivery: everything is paid to the courier
       return { rows, full, now, merch, discount, promo, delivery, deliveryNow, total, dueNow, balance: Math.max(0, total - dueNow), freeOver, onlyPre, hasPre: rows.some(r => r.l.pre), count: lines.reduce((n, l) => n + l.qty, 0) };
     }
   };
@@ -319,7 +319,7 @@ window.NZ = (function () {
     get: id => orders.list().find(o => o.id === id),
     save(list) { write(LS.orders, list); emit('orders'); },
     create(info) {
-      const T = cart.totals(info.zone);
+      const T = cart.totals(info.zone, info.payment);
       if (!T.rows.length) return null;
       const id = 'NZ' + (1000 + orders.list().length + 1) + '-' + uid().slice(0, 3);
       const o = {
